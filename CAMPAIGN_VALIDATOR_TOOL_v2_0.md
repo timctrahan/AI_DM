@@ -37,6 +37,12 @@ Campaign works but may have quality or balance issues.
 ### Level 4: INFO (Suggestions)
 Best practices and optimization suggestions.
 
+### Level 0: AI EXECUTION (Must Pass for AI Agents)
+
+Campaign will fail AI execution or violate player agency if these fail.
+
+**Critical for AI-run campaigns. Skip for human DMs.**
+
 ---
 
 ## VALIDATION PROTOCOL v2.0
@@ -65,6 +71,437 @@ PROCEDURE:
 ---
 
 ## VALIDATION CHECKS
+
+## LEGAL/SRD COMPLIANCE (LEVEL -1) - ABSOLUTE CRITICAL
+
+**PRIORITY**: This tier runs FIRST. Campaigns failing ANY Level -1 check are BLOCKED from deployment.
+
+**RATIONALE**: SRD 5.1 compliance is a legal requirement under CC-BY-4.0 licensing. Using WotC Product Identity without permission creates copyright liability.
+
+**DATABASE**: Validation checks reference `srd_reference_database.json` containing:
+- 320+ SRD 5.1 creature names
+- 280+ SRD 5.1 spell names
+- 200+ SRD 5.1 magic item names
+- Forbidden entities (creatures, locations, deities, organizations)
+
+---
+
+### 0. SRD Creature Compliance (CRITICAL)
+
+```
+VALIDATE: Creature_SRD_Compliance
+CHECKS:
+  Coverage:
+    ✓ All monsters[].name entries exist in SRD 5.1 creature list
+    ✓ All encounter compositions reference only SRD creatures OR marked "Custom"
+    ✓ No forbidden creatures (Beholder, Mind Flayer, Yuan-Ti, etc.)
+    ✓ Custom creatures clearly marked with source: "Custom" or "Homebrew"
+
+  Forbidden Detection (WotC Product Identity):
+    ❌ "Beholder" → Use "Eye Tyrant" or "Floating Eye Beast"
+    ❌ "Mind Flayer" / "Illithid" → Use "Brain Eater" or "Psychic Devourer"
+    ❌ "Displacer Beast" → Use "Phase Cat" or "Displacement Predator"
+    ❌ "Carrion Crawler" → Use "Carcass Scavenger"
+    ❌ "Umber Hulk" → Use "Burrowing Horror"
+    ❌ "Yuan-Ti" → Use "Serpent Folk" or "Snake People"
+    ❌ "Hook Horror" → Use "Hook Beast" or "Echo Hunter"
+    ❌ "Gith" / "Githyanki" / "Githzerai" → Use "Astral Raider" or "Chaos Monk"
+
+  Source Attribution:
+    ✓ SRD creatures reference source: "SRD 5.1"
+    ✓ Custom creatures specify source: "Custom" or "Homebrew"
+    ✓ Modified SRD creatures document modifications field
+
+ERRORS:
+  ❌ CRITICAL: Non-SRD creature "[name]" at line [X] not in SRD 5.1
+  ❌ CRITICAL: Forbidden creature "[name]" is WotC Product Identity (use [alternative])
+  ❌ ERROR: Missing source attribution for monster "[name]"
+  ❌ ERROR: Undocumented modification - "[name]" appears modified but no modifications field
+
+WARNINGS:
+  ⚠️ Custom variant "[name]" detected - ensure "Custom" source attribution
+  ⚠️ Ambiguous name "[name]" - could match SRD or non-SRD versions
+
+VALIDATION_FIELDS:
+  - monsters[].name (PRIMARY)
+  - monsters[].source (PRIMARY)
+  - encounters[].composition[].creature_name (PRIMARY)
+  - reusable_components.encounters[].composition[].creature_name (PRIMARY)
+  - quests[].encounters[].enemies[].name (SECONDARY)
+```
+
+---
+
+### 1. SRD Spell Compliance (CRITICAL)
+
+```
+VALIDATE: Spell_SRD_Compliance
+CHECKS:
+  Coverage:
+    ✓ All spell names (spells_known, NPC abilities, quest descriptions) exist in SRD 5.1
+    ✓ No Xanathar's-exclusive spells without explicit notation
+    ✓ No Tasha's-exclusive spells without explicit notation
+    ✓ Custom spells clearly marked as such
+
+  Level Accuracy:
+    ✓ Spell levels match SRD official levels (e.g., Fireball = 3, not 2)
+    ✓ Cantrips marked as level 0
+
+  Class Restrictions:
+    ✓ NPC/character spell lists respect SRD class spell access
+    ✓ No forbidden spell name references in narrative text
+
+ERRORS:
+  ❌ CRITICAL: Non-SRD spell "[spell_name]" not found in SRD 5.1
+  ❌ ERROR: Level mismatch - "[spell_name]" is level [X] in SRD, not [Y]
+  ❌ ERROR: Class violation - [class] cannot cast "[spell_name]" per SRD
+  ❌ ERROR: Xanathar spell "[spell_name]" used without notation
+
+WARNINGS:
+  ⚠️ Tasha's spell "[spell_name]" detected - mark if using supplement content
+  ⚠️ Homebrew spell "[spell_name]" appears custom - add source attribution
+
+VALIDATION_FIELDS:
+  - characters[].spells_known[].name (PRIMARY)
+  - npcs[].spells_known[].name (PRIMARY)
+  - quests[].description (REGEX SEARCH for spell references)
+  - state_changes[].narrative (REGEX SEARCH for spell casts)
+```
+
+---
+
+### 2. SRD Magic Item Compliance (CRITICAL)
+
+```
+VALIDATE: Magic_Item_SRD_Compliance
+CHECKS:
+  Coverage:
+    ✓ All magic_items[].name entries reference SRD 5.1 items OR marked "Custom"
+    ✓ Item rarity matches SRD definitions (Common/Uncommon/Rare/Very Rare/Legendary/Artifact)
+    ✓ Custom items have complete mechanics (not just name)
+
+  Named Items:
+    ✓ Named/unique items properly sourced (quest reward, artifact origin documented)
+    ✓ Legendary items have appropriate rarity (minimum Rare)
+
+ERRORS:
+  ❌ CRITICAL: Non-SRD item "[item_name]" not found in SRD 5.1
+  ❌ ERROR: Rarity mismatch - "[item_name]" marked [rarity] but should be [correct_rarity]
+  ❌ ERROR: Custom item "[item_name]" missing mechanics definition
+
+WARNINGS:
+  ⚠️ Supplement item "[item_name]" from Xanathar's/Tasha's - mark if using non-core
+  ⚠️ Balance concern: "[item_name]" [rarity] seems overpowered for level [X]
+
+VALIDATION_FIELDS:
+  - magic_items[].name (PRIMARY)
+  - quests[].rewards.items[].name (PRIMARY)
+  - characters[].inventory.magic_items[].name (SECONDARY)
+  - npcs[].shop_inventory[].item_name (SECONDARY)
+  - encounters[].treasure.items[].name (SECONDARY)
+```
+
+---
+
+### 3. Forbidden Entity Detection (CRITICAL)
+
+```
+VALIDATE: Forbidden_Entities
+CHECKS:
+  Locations:
+    ❌ Waterdeep, Neverwinter, Baldur's Gate, Barovia, Ravenloft, Undermountain
+    ❌ Menzoberranzan, Phandalin, Luskan, Silverymoon, Calimport, Candlekeep
+    ❌ Elturel, Myth Drannor, Evermeet, Icewind Dale, Ten-Towns
+    ✓ All location names are original or generic fantasy
+
+  Deities:
+    ❌ Lolth, Tiamat, Bahamut, Vecna, Orcus, Demogorgon, Zuggtmoy, Juiblex
+    ❌ Laduguer, Gruumsh, Maglubiyet, Bane, Bhaal, Myrkul, Cyric, Shar
+    ❌ Selûne, Kelemvor, Mystra, Azuth, Asmodeus (as named deity)
+    ✓ Deity references use generic descriptors ("Spider Queen" not "Lolth")
+
+  Organizations:
+    ❌ Harpers, Zhentarim, Lords' Alliance, Emerald Enclave
+    ❌ Order of the Gauntlet, Red Wizards of Thay, Flaming Fist
+    ✓ Faction names are original or generic
+
+  Narrative Text:
+    ✓ Campaign descriptions don't reference forbidden entities
+    ✓ NPC dialogue doesn't invoke forbidden deities/locations
+
+ERRORS:
+  ❌ CRITICAL: Forbidden location "[location]" at line [X] - create original location
+  ❌ CRITICAL: Forbidden deity "[deity]" at line [X] - use generic descriptor
+  ❌ CRITICAL: Forbidden faction "[faction]" at line [X] - create original organization
+  ❌ ERROR: Product Identity reference in text: "[excerpt]" at line [X]
+
+WARNINGS:
+  ⚠️ Potential PI reference: "[text]" may reference forbidden entity (manual review)
+  ⚠️ Deity reference detected: Ensure generic (not WotC-specific deity name)
+
+VALIDATION_FIELDS:
+  - locations[].name (PRIMARY - against forbidden list)
+  - locations[].description (REGEX SEARCH)
+  - npcs[].faction (PRIMARY - against forbidden list)
+  - npcs[].dialogue (REGEX SEARCH for deity/location references)
+  - factions[].name (PRIMARY - against forbidden list)
+  - quests[].description (FULL TEXT SEARCH)
+  - quests[].objectives[].text (FULL TEXT SEARCH)
+  - quest_relationships[].narrative (FULL TEXT SEARCH)
+```
+
+---
+
+### Level -1 Validation Summary Format
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LEVEL -1: LEGAL/SRD COMPLIANCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Check 0: SRD Creature Compliance........... [PASS/FAIL]
+  - Creatures validated: [X] total
+  - Forbidden creatures: [0] (✓ PASS) or [Y] CRITICAL (❌ FAIL)
+  - Custom creatures: [Z] (properly marked)
+
+Check 1: SRD Spell Compliance.............. [PASS/FAIL]
+  - Spells validated: [X] total
+  - Non-SRD spells: [0] (✓ PASS) or [Y] CRITICAL (❌ FAIL)
+  - Custom spells: [Z] (properly marked)
+
+Check 2: SRD Magic Item Compliance......... [PASS/FAIL]
+  - Items validated: [X] total
+  - Non-SRD items: [0] (✓ PASS) or [Y] CRITICAL (❌ FAIL)
+  - Custom items: [Z] (properly marked)
+
+Check 3: Forbidden Entity Detection........ [PASS/FAIL]
+  - Locations checked: [X] (all original)
+  - Deities checked: [X] (all generic)
+  - Factions checked: [X] (all original)
+  - Forbidden references: [0] (✓ PASS) or [Y] CRITICAL (❌ FAIL)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LEVEL -1 STATUS: [✅ PASS - SRD COMPLIANT] or [❌ FAIL - LEGAL ISSUES]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ IF FAIL: Campaign BLOCKED from deployment until legal issues resolved
+✅ IF PASS: Proceed to Level 0 (AI Agent Execution Validation)
+```
+
+---
+
+## AI AGENT EXECUTION VALIDATION (LEVEL 0) - CRITICAL
+
+### 11. Player Agency Enforcement (CRITICAL)
+
+```
+VALIDATE: STOP_Marker_Coverage
+CHECKS:
+  Presence:
+    ✓ All "Party Options" sections have ⛔ STOP marker
+    ✓ All "What do you do?" questions have ⛔ STOP marker
+    ✓ All branching quests (BRANCH A/B/C) have ⛔ STOP marker
+    ✓ All combat encounters have choice + ⛔ STOP marker
+    ✓ All companion sacrifice moments have ⛔ STOP marker
+  
+  Density:
+    ✓ 35-45 STOP markers per 5-session act (benchmark)
+    ✓ Major quests have 3-6 STOP markers each
+    ✓ No quest has zero STOP markers
+  
+  Format:
+    ✓ Marker format is exactly "⛔ STOP - Await player decision"
+    ✓ Marker appears AFTER options, not before
+    ✓ Options are numbered (1, 2, 3...)
+    ✓ "Something else" option always present
+
+ERRORS:
+  ❌ Missing STOP marker: Quest "[name]" has player choice without ⛔ STOP (line [X])
+  ❌ Zero STOP markers: Act [N] has 0 STOP markers (target: 35-45)
+  ❌ Insufficient density: Quest "[name]" is 8 sessions but has only 2 STOP markers
+  ❌ Format error: STOP marker malformed at line [X] (use exact format)
+  ❌ Options not numbered: Decision point has bullet points instead of numbers
+
+WARNINGS:
+  ⚠️ Low density: Act [N] has 18 STOP markers (target: 35-45)
+  ⚠️ Missing "something else": Options at line [X] don't include open-ended choice
+  ⚠️ Inconsistent format: Some STOP markers use different text
+```
+
+---
+
+### 12. Explicit DC Coverage (CRITICAL)
+
+```
+VALIDATE: DC_Specification
+CHECKS:
+  Coverage:
+    ✓ All skill checks have explicit DC (number 5-30)
+    ✓ No "appropriate DC" phrases
+    ✓ No "DM decides" phrases
+    ✓ No "if players succeed" without DC
+  
+  Validity:
+    ✓ DCs are in reasonable range (5-30)
+    ✓ DCs scale with quest level
+    ✓ Social checks have DCs or reputation gates
+  
+  Completeness:
+    ✓ All Investigation checks have DC
+    ✓ All Perception checks have DC
+    ✓ All social checks have DC or conditional logic
+    ✓ All contested checks specify opponent DC
+
+ERRORS:
+  ❌ Missing DC: Skill check at line [X] has no DC specified
+  ❌ Vague difficulty: "Appropriate Perception check" at line [X]
+  ❌ DM judgment: "DM decides difficulty" at line [X]
+  ❌ Invalid DC: DC [X] outside valid range (5-30)
+
+WARNINGS:
+  ⚠️ Ambiguous: "If players succeed" without DC (line [X])
+  ⚠️ DC too easy: DC 5 for [important check] (trivial success rate)
+  ⚠️ DC too hard: DC 28 for level [X] party (near-impossible)
+```
+
+---
+
+### 13. Fail-Forward Coverage (CRITICAL)
+
+```
+VALIDATE: Fail_Forward_Mechanisms
+CHECKS:
+  Coverage:
+    ✓ All skill checks have success AND failure outcomes
+    ✓ Investigation checks don't dead-end on failure
+    ✓ Combat encounters have flee/negotiate options
+    ✓ Puzzles have bypass or alternative solutions
+  
+  Quality:
+    ✓ Failure outcomes progress story (not blocks)
+    ✓ Failures have consequences (time/complication/resource)
+    ✓ Alternative paths exist for all critical progression
+  
+  Dead-End Detection:
+    ✓ No "find the clue or quest ends" scenarios
+    ✓ No locked doors without keys or bypass
+    ✓ No mandatory combat without alternatives
+
+ERRORS:
+  ❌ Dead-end check: Investigation at line [X] has no failure outcome
+  ❌ Quest blocker: Failed check at line [X] prevents progression
+  ❌ Soft-lock: Puzzle at line [X] has no bypass if failed
+  ❌ Mandatory path: Combat encounter has no flee/negotiate option
+
+WARNINGS:
+  ⚠️ Trivial failure: Failure outcome is same as success (just delayed)
+  ⚠️ Harsh consequence: Failure causes permanent loss without warning
+  ⚠️ Missing alternative: Only one solution path for [critical event]
+```
+
+---
+
+### 14. Algorithmic Decision Trees (ERROR)
+
+```
+VALIDATE: Decision_Tree_Format
+CHECKS:
+  Structure:
+    ✓ Complex choices (3+ branches) use algorithmic format
+    ✓ IF/THEN/ELSE structure for conditional logic
+    ✓ SWITCH/CASE for multi-option choices
+    ✓ All branches have defined outcomes
+  
+  Clarity:
+    ✓ Conditions are evaluable by AI (not subjective)
+    ✓ Reputation gates use numeric thresholds
+    ✓ Quest prerequisites are explicit flags
+  
+  Completeness:
+    ✓ All CASE options covered
+    ✓ Default/ELSE case exists
+    ✓ GOTO statements reference valid steps
+
+ERRORS:
+  ❌ Narrative format: Complex choice at line [X] not algorithmic
+  ❌ Missing branch: SWITCH at line [X] has no default case
+  ❌ Invalid condition: IF statement references undefined flag
+  ❌ Malformed structure: Decision tree missing PARSE step
+
+WARNINGS:
+  ⚠️ Could formalize: Choice at line [X] has 4 branches (consider algorithmic)
+  ⚠️ Subjective condition: "If DM thinks they're sincere" (not AI-evaluable)
+  ⚠️ Complex nesting: 4+ nested IF statements (hard to follow)
+```
+
+---
+
+### 15. Companion Consent Gates (CRITICAL)
+
+```
+VALIDATE: Companion_Death_Consent
+CHECKS:
+  Detection:
+    ✓ Find all companion death scenarios
+    ✓ Find all companion sacrifice offers
+    ✓ Find all permanent companion changes
+  
+  Gating:
+    ✓ All deaths have player choice + ⛔ STOP marker
+    ✓ Options include "accept" and "refuse"
+    ✓ No AI narration of sacrifice
+  
+  Format:
+    ✓ Choice presented BEFORE death occurs
+    ✓ Consequences clearly stated
+    ✓ Alternative options available
+
+ERRORS:
+  ❌ Ungated death: Companion can die at line [X] without player choice
+  ❌ Missing STOP: Sacrifice scenario at line [X] has no ⛔ STOP marker
+  ❌ No alternative: Death choice has no "refuse" option
+  ❌ AI narration: Text says "companion dies" before player chooses
+
+WARNINGS:
+  ⚠️ Ambiguous: Companion death implied but not explicit
+  ⚠️ Hidden consequence: Sacrifice option doesn't state "companion dies"
+  ⚠️ Limited choice: Only "accept" and "refuse" (no rescue attempt)
+```
+
+---
+
+### 16. Outcome Matrix Coverage (WARNING)
+
+```
+VALIDATE: Complex_Scenario_Matrices
+CHECKS:
+  Detection:
+    ✓ Find high-permutation scenarios (faction standoffs, climaxes)
+    ✓ Find multi-variable endings
+    ✓ Find reputation-based branching
+  
+  Coverage:
+    ✓ Outcome matrix provided for 3+ faction interactions
+    ✓ 8-12 key scenarios cover common cases
+    ✓ Default case handles edge cases
+  
+  Validity:
+    ✓ All conditions reference defined variables
+    ✓ All outcomes specify clear results
+    ✓ No overlapping condition sets
+
+ERRORS:
+  ❌ Missing matrix: Faction convergence at line [X] has 72 permutations but no outcome matrix
+  ❌ Undefined reference: Scenario condition checks "[flag]" which doesn't exist
+  ❌ No default: Matrix at line [X] has no catch-all scenario
+
+WARNINGS:
+  ⚠️ Sparse coverage: Matrix has 3 scenarios for 50+ permutations (may miss cases)
+  ⚠️ Could use matrix: Multi-faction scene at line [X] has narrative only
+  ⚠️ Overlapping: Scenarios 2 and 5 have identical conditions
+```
+
+---
 
 ### 1. Schema Structure Validation v3.0 (CRITICAL)
 
@@ -534,11 +971,65 @@ INFO:
 - WARNING Issues: [X]
 - INFO Suggestions: [X]
 
+**Level -1: Legal/SRD Compliance**: [✅ PASS - SRD COMPLIANT | ❌ FAIL - LEGAL ISSUES]
+- SRD Creature Compliance: [PASS | FAIL] ([X] creatures validated, [Y] forbidden)
+- SRD Spell Compliance: [PASS | FAIL] ([X] spells validated, [Y] non-SRD)
+- SRD Magic Item Compliance: [PASS | FAIL] ([X] items validated, [Y] non-SRD)
+- Forbidden Entity Detection: [PASS | FAIL] ([X] locations/deities/factions checked)
+
 **NEW v3.0 Feature Status**:
 - Reusable Components: [VALID | ISSUES FOUND]
 - Conditional Logic: [VALID | ISSUES FOUND]
 - Temporal Triggers: [VALID | ISSUES FOUND]
 - Emotional Beats: [VALID | SUGGESTIONS]
+
+---
+
+## LEVEL -1: LEGAL/SRD COMPLIANCE
+
+[This section appears FIRST - blocks deployment if ANY check fails]
+
+### Check 0: SRD Creature Compliance
+[✅ PASS | ❌ FAIL]
+- Total creatures validated: [X]
+- Forbidden creatures found: [Y] (if > 0, CRITICAL)
+- Custom creatures: [Z] (properly marked with source: "Custom")
+
+**Issues Found** (if any):
+❌ CRITICAL: Forbidden creature "[name]" at line [X] (use [alternative])
+❌ ERROR: Non-SRD creature "[name]" without source attribution
+
+### Check 1: SRD Spell Compliance
+[✅ PASS | ❌ FAIL]
+- Total spells validated: [X]
+- Non-SRD spells found: [Y] (if > 0, CRITICAL)
+- Custom spells: [Z] (properly marked)
+
+**Issues Found** (if any):
+❌ CRITICAL: Non-SRD spell "[spell_name]" at line [X]
+❌ ERROR: Spell level mismatch for "[spell_name]"
+
+### Check 2: SRD Magic Item Compliance
+[✅ PASS | ❌ FAIL]
+- Total items validated: [X]
+- Non-SRD items found: [Y] (if > 0, CRITICAL)
+- Custom items: [Z] (properly marked)
+
+**Issues Found** (if any):
+❌ CRITICAL: Non-SRD item "[item_name]" at line [X]
+❌ ERROR: Rarity mismatch for "[item_name]"
+
+### Check 3: Forbidden Entity Detection
+[✅ PASS | ❌ FAIL]
+- Locations checked: [X]
+- Deities referenced: [Y]
+- Factions referenced: [Z]
+- Forbidden references found: [N] (if > 0, CRITICAL)
+
+**Issues Found** (if any):
+❌ CRITICAL: Forbidden location "[location]" at line [X]
+❌ CRITICAL: Forbidden deity "[deity]" referenced in NPC dialogue
+❌ CRITICAL: Forbidden faction "[faction]" at line [X]
 
 ---
 

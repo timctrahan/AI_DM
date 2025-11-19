@@ -401,11 +401,6 @@ Between Grakkul's Market and Khar-Morkai lies the **Sunless Chasm**—a mile-dee
 - Falling PC can be caught by allies (DC 15 Acrobatics)
 - Hook Beasts pursue 2 rounds then return to nest
 
-**Trait Gained: Vertigo Acclimated**
-The party has learned to function on precarious heights. Years of adventuring won't erase this muscle memory.
-- **Effect:** Advantage on saves vs falling and fear effects related to heights
-- **Duration:** Persists through campaign
-
 #### Carved Path Encounter
 
 **Encounter: Carcass Scavenger Pack (Avoidable)**
@@ -415,11 +410,6 @@ The party has learned to function on precarious heights. Years of adventuring wo
 - **Adjusted XP:** 1350 × 2 = 2,700 XP (Deadly)
 - **Alternative:** Throw rations as distraction (auto-success)
 
-**Trait Gained: Stone Climber**
-Hours of testing handholds have trained the party's climbing instincts.
-- **Effect:** +1d4 bonus to Athletics checks involving climbing, handholds, or vertical surfaces
-- **Duration:** Persists through campaign
-
 #### Fungal Route Encounter
 
 **Encounter: Violet Fungus Patch**
@@ -427,11 +417,6 @@ Hours of testing handholds have trained the party's climbing instincts.
 - **Hazard:** 4x Violet Fungus (CR 1/4, 50 XP each)
 - **Adjusted XP:** 200 × 2 = 400 XP (Easy)
 - **Solution:** Fire damage destroys them easily, or careful navigation (DC 10 Survival)
-
-**Trait Gained: Spore Resistant**
-Prolonged exposure to fungal spores has built up the party's resistance to toxins.
-- **Effect:** Advantage on saves vs poison and disease
-- **Duration:** Persists through campaign
 
 #### Climbing Challenges
 
@@ -1748,8 +1733,6 @@ party_level: 5
 companions:
   velryn: [loyalty_score or "not_recruited"]
   gralk: [loyalty_score or "not_recruited"]
-route_taken: [bridges/carved/fungal]
-descent_trait: [vertigo_acclimated/stone_climber/spore_resistant]
 reputation:
   surface: [score]
   duergar: [score]

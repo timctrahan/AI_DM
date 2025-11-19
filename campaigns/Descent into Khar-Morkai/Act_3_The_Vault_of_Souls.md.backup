@@ -32,7 +32,7 @@ template_compliance: 100% (enhanced)
 ```
 
 **Ending 4 available if:**
-- Velryn ≥10 (or PC volunteers) + Durin's blessing + Myconids ≥3 + Intellect_Devourers ≥3
+- Velryn ≥10 (or PC volunteers) + Durin's blessing + Myconids ≥3 + Mindflayers ≥3
 
 **THE FINALE BEGINS...**
 
@@ -44,9 +44,9 @@ template_compliance: 100% (enhanced)
 
 The Vault of Souls lies open. Ten thousand souls scream behind the adamantine door, their torment echoing through psychic space. The party must enter the soul-prison, navigate its reality-warping interior, and confront the impossible truth face-to-face.
 
-But they're not alone. **House Shadowveil** (drow), **the Intellect Devourer Collective**, and the **undead of Khar-Morkai** all converge on the Vault, each with their own agenda. The party's reputation with these factions determines who helps, who hinders, and who dies.
+But they're not alone. **House Xaniqos** (drow), **the Mind Flayer Collective**, and the **undead of Khar-Morkai** all converge on the Vault, each with their own agenda. The party's reputation with these factions determines who helps, who hinders, and who dies.
 
-Inside the Vault, the party discovers the binding mechanism: souls woven into a living seal, their constant suffering generating the psychic energy needed to hold back **The Rot Goddess's demon army**. The seal is failing. Within days, the breach will reopen.
+Inside the Vault, the party discovers the binding mechanism: souls woven into a living seal, their constant suffering generating the psychic energy needed to hold back **Zuggtmoy's demon army**. The seal is failing. Within days, the breach will reopen.
 
 **Four paths diverge. All demand sacrifice. Choose.**
 
@@ -184,7 +184,7 @@ As door opens partially, visions flood party's minds:
 - Binding was horrific even for willing volunteers
 - Souls are conscious, suffering every moment for 800 years
 - Seal is weakening (hence nightmares)
-- If seal breaks: The Rot Goddess's demon army invades Underdark, spreads to surface
+- If seal breaks: Zuggtmoy's demon army invades Underdark, spreads to surface
 - If souls are freed without replacement: Same result
 
 **The Impossible Truth:**
@@ -231,13 +231,13 @@ ready_for_finale: true
 
 #### Quest Summary
 
-As the party stands before the Soul Engine deciding what to do, the factions arrive. **Drow, intellect devourers, and undead** all enter the Vault, each with their agenda. A tense three-way (or four-way with party) standoff occurs. Combat is possible but not inevitable—negotiation determines who lives, who dies, and who helps.
+As the party stands before the Soul Engine deciding what to do, the factions arrive. **Drow, mind flayers, and undead** all enter the Vault, each with their agenda. A tense three-way (or four-way with party) standoff occurs. Combat is possible but not inevitable—negotiation determines who lives, who dies, and who helps.
 
 **This quest is primarily social/combat hybrid based on Act 1-2 choices.**
 
 #### The Arrivals (Sequential)
 
-**First: House Shadowveil (Drow)**
+**First: House Xaniqos (Drow)**
 
 **If Velryn is with party:**
 - Zilvra and 6 drow warriors enter
@@ -247,9 +247,9 @@ As the party stands before the Soul Engine deciding what to do, the factions arr
 - 3 drow warriors only (smaller force)
 - **Drow leader:** "Drow business. Leave or die."
 
-**Second: Intellect Devourer Collective**
+**Second: Mind Flayer Collective**
 
-- Xalaphex and 4 blind savages enter
+- Xalaphex and 4 grimlocks enter
 - **Xalaphex (telepathic):** *"Fascinating. The mechanism is more elegant than expected. We will study it now."*
 
 **Third: Khar-Morkai Undead**
@@ -268,7 +268,7 @@ As the party stands before the Soul Engine deciding what to do, the factions arr
 **Four factions in one chamber:**
 1. **Party** (wants to solve crisis)
 2. **Drow** (want Velryn, don't care about souls)
-3. **Intellect Devourers** (want to study/harvest souls)
+3. **Mind Flayers** (want to study/harvest souls)
 4. **Undead** (want party's decision, will enforce it)
 
 **Everyone wants something. Negotiation possible.**
@@ -284,16 +284,16 @@ zilvra_wants:
   
 negotiation_options:
   - Spare Velryn in exchange for: [party helps seal, party leaves Underdark]
-  - Temporary alliance against intellect devourers
+  - Temporary alliance against mind flayers
   - Mutual withdrawal (everyone leaves)
   
 will_attack_if:
   - Party protects Velryn (if below -3 reputation)
-  - Intellect devourers attempt soul harvest
+  - Mind flayers attempt soul harvest
   - Seal is about to break
 ```
 
-**Intellect Devourer Position:**
+**Mind Flayer Position:**
 ```yaml
 xalaphex_wants:
   - Study the mechanism (academic interest)
@@ -326,7 +326,7 @@ will_support_party_if:
 will_attack_party_if:
   - Reputation -3 or lower
   - Party desecrates Vault
-  - Party sides with intellect devourers
+  - Party sides with mind flayers
 ```
 
 #### Negotiation Mechanics
@@ -339,7 +339,7 @@ will_attack_party_if:
 - DC 20 (if reputation -3 or lower)
 - **Impossible** if reputation -8 or lower (auto-attack)
 
-**Intellect Devourer Negotiation:**
+**Mind Flayer Negotiation:**
 - DC 14 (if reputation +2 or higher)
 - DC 17 (if reputation -2 to +1)
 - DC 22 (if reputation -3 or lower)
@@ -354,8 +354,8 @@ will_attack_party_if:
 
 **Outcome 1: Alliance Forged**
 - All factions agree to cooperate
-- Drow+Party+Undead vs Intellect Devourers (if MF try to harvest)
-- Intellect Devourers+Party vs Drow+Undead (unlikely)
+- Drow+Party+Undead vs Mind Flayers (if MF try to harvest)
+- Mind Flayers+Party vs Drow+Undead (unlikely)
 - All factions agree to let party decide without interference
 
 **Outcome 2: Faction Combat**
@@ -375,13 +375,13 @@ will_attack_party_if:
 
 #### Combat Encounter (If Negotiations Fail)
 
-**Scenario: Party + Undead vs Drow + Intellect Devourers**
+**Scenario: Party + Undead vs Drow + Mind Flayers**
 
 **Enemies:**
 - Zilvra (Drow Priestess CR 8, 3,900 XP)
 - 4× Drow Elite Warrior (CR 5, 1,800 XP each)
-- Xalaphex (Intellect Devourer CR 7, 2,900 XP)
-- 4× Blind Savage (CR 1/4, 50 XP each)
+- Xalaphex (Mind Flayer CR 7, 2,900 XP)
+- 4× Grimlock (CR 1/4, 50 XP each)
 
 **Allies (if earned):**
 - Sentinel Korag (Wight, CR 3)
@@ -391,9 +391,9 @@ will_attack_party_if:
 
 **Tactics:**
 - Drow focus on Velryn (if present)
-- Intellect devourers use Mind Blast (60ft cone, DC 15 Int save, stun)
+- Mind flayers use Mind Blast (60ft cone, DC 15 Int save, stun)
 - Undead protect party (if allied)
-- Blind Savages are cannon fodder
+- Grimlocks are cannon fodder
 
 **Environment:**
 - Soul Engine can be used (DC 14 Arcana: release burst of psychic energy, damages all)
@@ -433,7 +433,7 @@ will_attack_party_if:
 flags_set:
   - faction_convergence: complete
   - drow_status: [allied/neutral/hostile/dead]
-  - intellect_devourer_status: [allied/neutral/hostile/fled]
+  - mindflayer_status: [allied/neutral/hostile/fled]
   - undead_status: [allied/neutral/hostile]
   - seal_integrity: critical (breaking in hours)
 
@@ -469,7 +469,7 @@ Party destroys the Soul Engine. Souls are released.
 >
 > *Then the seal breaks.*
 >
-> *The chamber wall cracks. Sickly green light floods through. A massive claw—fungal, demonic—reaches through. Then another. Then dozens. The Rot Goddess's army pours into the Underdark.*
+> *The chamber wall cracks. Sickly green light floods through. A massive claw—fungal, demonic—reaches through. Then another. Then dozens. Zuggtmoy's army pours into the Underdark.*
 
 **What Happens Next:**
 
@@ -585,7 +585,7 @@ Party uses the three key fragments to strengthen the seal. Souls remain bound.
 
 **Requirements:**
 - No special requirements (always available)
-- Intellect devourer cooperation helps (they teach how)
+- Mind flayer cooperation helps (they teach how)
 
 **The Action:**
 
@@ -636,7 +636,7 @@ Party consumes the souls' energy, gaining immense power and becoming the new sea
 
 **Velryn (if present):**
 - Horrified
-- "This is... this is what The Spider Queen would do. You're no better than drow."
+- "This is... this is what Lolth would do. You're no better than drow."
 - Leaves party immediately
 - May attack if high reputation (can't bear party's transformation)
 
@@ -664,17 +664,17 @@ Party consumes the souls' energy, gaining immense power and becoming the new sea
 - Velryn loyalty +10 or higher (she volunteers to become seal)
 - Durin's blessing (from Act 2)
 - Myconid colony cooperation (from Act 2 fungal quest)
-- Intellect devourer collective reputation +3 or higher (they help with transfer)
+- Mind flayer collective reputation +3 or higher (they help with transfer)
 - OR party member volunteers (permanent death)
 
 **The Action:**
 
-A willing soul (Velryn or PC) volunteers to become the new seal—but a LIVING seal, not imprisoned soul. With myconid life-force support and intellect devourer psionic technique, the transfer is humane.
+A willing soul (Velryn or PC) volunteers to become the new seal—but a LIVING seal, not imprisoned soul. With myconid life-force support and mind flayer psionic technique, the transfer is humane.
 
 **If Velryn Volunteers (High Loyalty Path):**
 
 **Velryn's Speech:**
-> "I've been running my whole life. From The Spider Queen, from my house, from my past. But you... you showed me redemption is possible. Let me do this. Let me prove a drow can be more than darkness. Free the souls. I'll take their place—willingly, peacefully. Tell my story. Let people know... a drow chose good."
+> "I've been running my whole life. From Lolth, from my house, from my past. But you... you showed me redemption is possible. Let me do this. Let me prove a drow can be more than darkness. Free the souls. I'll take their place—willingly, peacefully. Tell my story. Let people know... a drow chose good."
 
 **Party can:**
 - Accept (she becomes seal)
@@ -691,7 +691,7 @@ A willing soul (Velryn or PC) volunteers to become the new seal—but a LIVING s
 
 **The Ritual (Either Path):**
 
-> *The myconids arrive, their spores glowing. The intellect devourers channel psionic energy. You release the ten thousand souls—they pour out, finally free, finally at peace. As they fade, Velryn steps forward. The mechanism reconfigures. Instead of torment, she channels life-force. The seal holds. She becomes immortal, not imprisoned but transcendent—a guardian angel for the Underdark.*
+> *The myconids arrive, their spores glowing. The mind flayers channel psionic energy. You release the ten thousand souls—they pour out, finally free, finally at peace. As they fade, Velryn steps forward. The mechanism reconfigures. Instead of torment, she channels life-force. The seal holds. She becomes immortal, not imprisoned but transcendent—a guardian angel for the Underdark.*
 
 **What Happens Next:**
 
@@ -759,7 +759,7 @@ A willing soul (Velryn or PC) volunteers to become the new seal—but a LIVING s
 
 **Velryn's Gift:**
 
-She gives party her House Shadowveil signet ring:
+She gives party her House Xaniqos signet ring:
 - "If I don't make it... remember me by this. Not as the drow who ran, but as the woman who stood."
 - *Ring of Protection +1* (her most valued possession)
 
@@ -965,11 +965,11 @@ korag_finale_state:
 
 ### **Faction Leaders (Returning)**
 
-#### **Zilvra Shadowveil** (Drow Priestess)
+#### **Zilvra Xaniqos** (Drow Priestess)
 
 ```yaml
 zilvra_convergence:
-  role: "House Shadowveil Leader, Velryn's Hunter"
+  role: "House Xaniqos Leader, Velryn's Hunter"
   status: "Primary antagonist if Velryn present"
   
   act3_appearance: "The Convergence (Main Quest 2)"
@@ -986,22 +986,22 @@ zilvra_convergence:
     - Truce (48 hours, doesn't interfere)
     - Combat (party protects Velryn)
     - Captures Velryn (low loyalty scenario)
-    - Killed by party/intellect devourers
+    - Killed by party/mind flayers
     
   final_stance_by_ending:
     ending_1: "Fools! You've doomed us all!"
     ending_2: "Pragmatic. The seal holds. We withdraw."
-    ending_3: "Abominations. The Spider Queen will judge you."
+    ending_3: "Abominations. Lolth will judge you."
     ending_4: "A drow... sacrificed for good? Impossible."
 ```
 
 ---
 
-#### **Xalaphex** (Intellect Devourer)
+#### **Xalaphex** (Mind Flayer)
 
 ```yaml
 xalaphex_convergence:
-  role: "Intellect Devourer Scout, Elder Brain Agent"
+  role: "Mind Flayer Scout, Elder Brain Agent"
   status: "Neutral observer, potential ally or enemy"
   
   act3_appearance: "The Convergence (Main Quest 2)"
@@ -1192,11 +1192,11 @@ existing_factions:
     final_range: -5 to +7
     effects: "Korag recruitment, Colossus bypass"
     
-  drow_house_shadowveil:
+  drow_house_xaniqos:
     final_range: -10 to +2
     effects: "Convergence negotiations"
     
-  intellect_devourer_collective:
+  mindflayer_collective:
     final_range: -8 to +4
     effects: "Convergence negotiations, Ending 4 assistance"
 

@@ -33,7 +33,6 @@ companion_dynamics: loyalty_tests|possible_losses
 **Validation checklist:**
 - ✓ Party level = 5
 - ✓ Companion loyalty scores noted
-- ✓ Descent trait noted (vertigo_acclimated/stone_climber/spore_resistant)
 - ✓ Reputation scores recorded
 
 **Act 2 begins...**
@@ -109,20 +108,6 @@ Khar-Morkai is enormous—miles of winding streets, thousands of tomb-buildings,
 - Undead stand down but watch suspiciously
 - Ghast leader: "Korag said you may pass. We do not trust you."
 - Reputation: khar_morkai_undead +0 (neutral, not hostile)
-
-**Korag's Greeting (varies by route_taken):**
-
-IF route_taken == "bridges":
-> "I watched your descent. The bridges. Reckless... but brave. The dead respect courage."
-> *Korag grants +1 to khar_morkai_undead reputation*
-
-IF route_taken == "carved":
-> "You took the carved path. Methodical. Patient. The mark of experienced travelers."
-> *Korag nods approvingly*
-
-IF route_taken == "fungal":
-> "The fungal ledges? Slow, but wise. You think before you act."
-> *Korag grants +1 to khar_morkai_undead reputation*
 
 **If Fought Past Gates:**
 - Undead attack on sight
@@ -350,7 +335,6 @@ Altar has three dwarven statues representing:
 #### **FRAGMENT 3: The Mourner's Tear**
 **Location: Memorial Gardens | 1500 XP**
 
-
 **Summary:** The Memorial Gardens were where families said farewell to the souls who volunteered. The Mourner's Tear—a crystallized teardrop—rests in the Garden's heart, guarded by sorrowful spirits.
 
 **Location Details:**
@@ -365,10 +349,6 @@ Altar has three dwarven statues representing:
 - Failure: Disadvantage on attacks and ability checks (grief overwhelms)
 - Success: Affected but functional
 - **Remove Curse** or similar magic can negate
-
-**If party has Spore Resistant trait (Fungal route):**
-- Advantage on the DC 13 Wisdom save vs Weight of Sorrow
-- (Poison resistance extends to psychic toxins from prolonged spore exposure)
 
 **Key NPC: The Mourner (Amalgam Spirit)**
 - **Type:** Unique entity (ghost collective of 10,000 families)
@@ -473,11 +453,7 @@ flags_set:
   - vault_keys_complete: true
   - promised_mourner_freedom: [true/false]
   - durin_consulted: [true/false]
-  
-compassion_flags:
   - thalgrim_forgiven: [true/false]
-  - durin_respected: [true/false]
-  - mourner_comforted: [true/false]
 
 nightmare_intensity: 5 → 7
 ```
@@ -715,13 +691,9 @@ As party descends:
 - **Adjusted XP:** 7,200 × 2 = 14,400 (Deadly for 4 Level 6 PCs)
 - **Tactics:** Psychic screams, drain intelligence, create babbling madness
 - **Environment:** Narrow spiral stairs (falling is 20ft between landings)
-
-**If party has Vertigo Acclimated trait (Bridges route):**
-- Advantage on saves vs falling from stairs
 - **Can be avoided:** DC 16 Stealth check (entire party)
 
 **The Outer Sanctum Chamber**
-
 
 Finally reaching bottom:
 
@@ -737,9 +709,6 @@ Finally reaching bottom:
 - **Tactics:** Slow Action (DC 17 Wisdom save), crushing blows (20+ damage)
 - **Weakness:** Vulnerable to adamantine weapons (if party has one)
 - **Environment:** 3 pillars provide cover, can collapse them on golem (DC 15 Athletics)
-
-**If party has Stone Climber trait (Carved Path route):**
-- Add +1d4 to Athletics checks for collapsing pillars
 
 **Alternative Bypasses (Multiple Paths):**
 
@@ -1351,9 +1320,6 @@ artisan_quarter:
   
   hazards:
     - Unstable catwalks (DC 12 Acrobatics or fall)
-
-**If party has Vertigo Acclimated trait (Bridges route):**
-- Advantage on Acrobatics checks vs falling from catwalks
     - Phantom heat (feels hot, psychosomatic damage)
     - Animated tools (minor nuisances)
   
@@ -1780,10 +1746,6 @@ reputation:
   undead: [score]
   drow: [score]
   aberrant_devourers: [score]
-compassion_flags:
-  thalgrim_forgiven: [true/false]
-  durin_respected: [true/false]
-  mourner_comforted: [true/false]
 blessings:
   durins: [yes/no]
   mourners: [yes/no]

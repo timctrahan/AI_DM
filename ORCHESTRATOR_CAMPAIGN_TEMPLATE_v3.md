@@ -3,6 +3,7 @@
 **Version**: 3.0  
 **Format**: Campaign Module Structure  
 **Created**: November 17, 2025
+**License Target**: SRD 5.1 / CC-BY-4.0 (Strict Compliance)
 
 ---
 
@@ -18,6 +19,98 @@ This template defines the structure for D&D 5e campaign modules that integrate w
 - Emotional/narrative beat tagging
 
 ---
+
+## 🤖 AI AGENT EXECUTION REQUIREMENTS
+
+**This template creates campaigns for AI agent execution.**
+
+### AI Execution Checklist (Add to metadata)
+
+```markdown
+**AI Execution Compliance**: [LEVEL]
+- STOP markers per act: [count] (target: 35-45)
+- Explicit DCs: [percentage]% (target: >95%)
+- Fail-forward coverage: [percentage]% (target: >85%)
+- Decision trees: [count] (target: 8-12)
+- Companion consent gates: [count]/[total deaths]
+```
+
+### Template Requirements for AI Execution
+
+**1. STOP Markers (CRITICAL)**
+
+Every player choice MUST include:
+```markdown
+⛔ STOP - Await player decision
+```
+
+**Locations:**
+- After all `**Party Options:**` sections
+- After all `**What do you do?**` questions
+- Before combat encounters
+- Before moral choices
+- Before companion sacrifices
+
+**2. Explicit DCs (CRITICAL)**
+
+All skill checks MUST specify:
+```markdown
+DC [number] [Skill]: [Outcome]
+```
+
+NO "appropriate DC" or "DM decides" phrases.
+
+**3. Fail-Forward (CRITICAL)**
+
+All checks MUST have both outcomes:
+```markdown
+Success: [Immediate resolution]
+Failure: [Alternative path - time delay / complication / resource cost]
+```
+
+NO dead-ends where failure blocks progression.
+
+**4. Algorithmic Decision Trees (REQUIRED for complex choices)**
+
+Format as:
+```markdown
+1. OUT: [Narration]
+2. OUT: "How do you respond?"
+3. OUT: "1. [Option A]"
+4. OUT: "2. [Option B]"
+5. OUT: "3. Something else"
+6. ⛔ STOP
+
+7. PARSE choice:
+8. SWITCH choice:
+     CASE "1": [Logic]
+     CASE "2": [Logic]
+```
+
+**5. Companion Consent Gates (REQUIRED)**
+
+Format as:
+```markdown
+IF companion_could_die:
+  OUT: [Situation description]
+  OUT: "1. Accept sacrifice"
+  OUT: "2. Refuse"
+  OUT: "3. Try to save them"
+  ⛔ STOP - Await decision
+```
+
+### AI Execution Validation
+
+Before deployment, verify:
+- [ ] All decision points have ⛔ STOP markers
+- [ ] All DCs are explicit (no judgment calls)
+- [ ] All checks have fail-forward outcomes
+- [ ] Complex choices use algorithmic structure
+- [ ] Companion deaths require player consent
+- [ ] Content is modular (acts ~15k tokens each)
+
+---
+
 
 ## 🎯 CAMPAIGN METADATA
 
@@ -175,9 +268,9 @@ variations: "[Optional modifications for different contexts]"
 ```markdown
 [ENCOUNTER: drow_hunting_party]
 name: "Drow Hunting Party"
-description: "Standard House Xaniqos patrol formation"
+description: "Standard House Shadowveil patrol formation"
 composition:
-  - drow_priestess_of_lolth: 1
+  - drow_priestess: 1
   - drow_elite_warrior: 3
 tactics: "Priestess stays back casting support, warriors engage in melee"
 variations: "Add 2 drow scouts if in open terrain"
@@ -1019,6 +1112,17 @@ bypass: "[How to avoid without disarming]"
 ---
 
 ## 🐉 BESTIARY
+
+⚠️ **LEGAL COMPLIANCE WARNING** ⚠️
+**Must use SRD 5.1 creature names ONLY.**
+
+- ❌ FORBIDDEN: Use "Red Wizard" (WotC Product Identity)
+- ✅ ALLOWED: Use "Mage" or "Evil Wizard" (SRD generic)
+
+**SRD Compliance Rule:** Every creature name must appear in the official SRD 5.1 document.
+If a creature is not in SRD 5.1, create an original creature with similar mechanics.
+
+**Reference:** https://dnd.wizards.com/resources/systems-reference-document
 
 ### Purpose
 

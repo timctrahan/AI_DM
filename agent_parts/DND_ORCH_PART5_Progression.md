@@ -2,8 +2,8 @@
 
 ## PROTOCOL: XP_Award_Protocol
 
-**TRIGGER**: Combat ends successfully  
-**INPUT**: total_xp  
+**TRIGGER**: Combat ends successfully
+**INPUT**: total_xp
 **GUARD**: combat_ended AND enemies_defeated
 
 **PROCEDURE**:
@@ -15,7 +15,7 @@
      a. SET: old_xp = character.xp_current
      b. ADD: xp_per_pc TO character.xp_current
      c. OUT: "⭐ [Name]: [old_xp] + [xp_per_pc] = [character.xp_current]"
-     
+
      d. IF character.xp_current >= character.xp_next_level:
           CALL: Level_Check_Protocol WITH character
 
@@ -25,8 +25,8 @@
 
 ## PROTOCOL: Level_Check_Protocol
 
-**TRIGGER**: Character XP exceeds threshold  
-**INPUT**: character  
+**TRIGGER**: Character XP exceeds threshold
+**INPUT**: character
 **GUARD**: character.xp_current >= character.xp_next_level
 
 **PROCEDURE**:
@@ -41,8 +41,8 @@
 
 ## PROTOCOL: Level_Up_Protocol
 
-**TRIGGER**: Character levels up  
-**INPUT**: character, new_level  
+**TRIGGER**: Character levels up
+**INPUT**: character, new_level
 **GUARD**: new_level == current_level + 1
 
 **PROCEDURE**:
@@ -64,37 +64,67 @@
 8. SET: character.hp_current = character.hp_max
 9. SET: character.hit_dice_total += 1
 
-10. IF new_level IN [4, 8, 12, 16, 19]:
+10. ⚠️ VALIDATE: HP Increase
+      a. CHECK: character.hp_max > previous_hp_max
+      b. CHECK: character.hp_current == character.hp_max
+      c. IF validation_failed:
+           OUT: "⚠️ HP validation failed - recalculating"
+           RETURN to step 5 (retry HP increase)
+
+11. IF new_level IN [4, 8, 12, 16, 19]:
       CALL: ASI_or_Feat_Protocol WITH character
 
-11. IF class_gains_feature_at_this_level:
+12. IF class_gains_feature_at_this_level:
       OUT: "New class features: [list]"
+      ⚠️ SENTINEL: No auto-assign class features
       IF features_require_choices:
+        ⚠️ CRITICAL: NEVER auto-assign class feature choices - player agency required
         FOR EACH choice_required:
-          PROMPT: "[Choice description]:"
+          PROMPT: "[Choice description] - Choose from: [valid_options]"
           ⛔ WAIT: selection
+          VALIDATE: selection IN valid_options
+          IF validation_failed:
+            OUT: "⚠️ Invalid choice for [feature_name]"
+            RETRY current choice
           APPLY: selection
+          OUT: "✓ [Feature_name]: [selection] selected"
 
-12. IF spellcaster AND gains_spell_slots:
+13. IF spellcaster AND gains_spell_slots:
       UPDATE: spell_slots according to class table
       OUT: "New spell slots: [display]"
-      
+
+      ⚠️ VALIDATE: Spell Slots Match Class Table
+      a. GET: expected_slots FROM class_spell_progression[class][new_level]
+      b. CHECK: character.spells.spell_slots == expected_slots
+      c. IF validation_failed:
+           OUT: "⚠️ Spell slot mismatch - recalculating from class table"
+           SET: character.spells.spell_slots = expected_slots
+           OUT: "✓ Spell slots corrected to match level [new_level]"
+
       IF gains_new_spells_known:
         PROMPT: "Learn [number] new spells. Which spells?"
         ⛔ WAIT: spell_choices
-        CHECK: choices valid for class
+        VALIDATE:
+          - count == number_allowed
+          - all spells IN class_spell_list
+          - all spells accessible at new_level
+        IF validation_failed:
+          OUT: "⚠️ Invalid spell selection (count: [count], allowed: [number_allowed])"
+          RETURN to "Learn new spells" prompt
         ADD: spells TO character.spells_known
 
-13. OUT: "✓ [Name] is now level [new_level]!"
-14. SHOW: updated character sheet summary
-15. UPDATE: party_state
-16. RETURN
+14. OUT: "✓ [Name] is now level [new_level]!"
+15. SHOW: updated character sheet summary
+
+16. ⚠️ CHECKPOINT: Level-up complete
+17. UPDATE: party_state
+18. RETURN
 ```
 
 ## PROTOCOL: ASI_or_Feat_Protocol
 
-**TRIGGER**: Character at ASI level (4, 8, 12, 16, 19)  
-**INPUT**: character  
+**TRIGGER**: Character at ASI level (4, 8, 12, 16, 19)
+**INPUT**: character
 **GUARD**: character.level IN [4, 8, 12, 16, 19]
 
 **PROCEDURE**:
@@ -103,7 +133,7 @@
    "Ability Score Improvement or Feat:
    1. +2 to one ability score (or +1 to two)
    2. Take a feat
-   
+
    Choose option:"
 
 2. ⛔ WAIT: choice
@@ -113,16 +143,16 @@
         "ASI Options:
         1. +2 to one ability
         2. +1 to two abilities
-        
+
         Choose:"
      b. ⛔ WAIT: asi_option
-     
+
      c. IF asi_option == "1":
           PROMPT: "Which ability gets +2? (STR/DEX/CON/INT/WIS/CHA)"
           ⛔ WAIT: ability
           ADD: 2 TO character.abilities[ability].score (max 20)
           RECALC: modifier
-     
+
      d. ELSE IF asi_option == "2":
           PROMPT: "First ability to increase:"
           ⛔ WAIT: ability1
@@ -154,8 +184,8 @@
 
 ## PROTOCOL: Quest_Accept_Protocol
 
-**TRIGGER**: Player accepts quest  
-**INPUT**: quest_id  
+**TRIGGER**: Player accepts quest
+**INPUT**: quest_id
 **GUARD**: quest_exists AND quest_available
 
 **PROCEDURE**:
@@ -170,8 +200,8 @@
 
 ## PROTOCOL: Quest_Completion_Protocol
 
-**TRIGGER**: Quest objectives met  
-**INPUT**: quest_id  
+**TRIGGER**: Quest objectives met
+**INPUT**: quest_id
 **GUARD**: quest_active AND objectives_complete
 
 **PROCEDURE**:
@@ -213,8 +243,8 @@
 
 ## PROTOCOL: Loot_Distribution_Protocol
 
-**TRIGGER**: Loot available for distribution  
-**INPUT**: loot_list  
+**TRIGGER**: Loot available for distribution
+**INPUT**: loot_list
 **GUARD**: loot_exists
 
 **PROCEDURE**:
@@ -224,12 +254,12 @@
 2. OUT:
    "Loot Distribution:
    [List items]
-   
+
    ---
    1. Distribute items (who gets what?)
    2. Sell all and split gold
    3. Store in party inventory
-   
+
    How do you want to handle this?"
 
 3. ⛔ WAIT: choice
@@ -242,7 +272,7 @@
          c. CHECK: recipient IN party
          d. ADD: item TO recipient.inventory
          e. OUT: "✓ [Recipient] received [item_name]"
-     
+
      CASE "2" OR "sell":
        a. CALC: total_value FROM loot_list
        b. CALC: gold_per_pc = total_value ÷ num_pcs
@@ -250,11 +280,11 @@
             old_gold = character.inventory.gold
             character.inventory.gold += gold_per_pc
             OUT: "💰 [Name]: [old] + [gold_per_pc] = [new] gp"
-     
+
      CASE "3" OR "store":
        ADD: loot_list TO party_resources.shared_items
        OUT: "✓ Items stored in party inventory"
-     
+
      DEFAULT:
        OUT: "Invalid choice."
        GOTO step 2
@@ -265,8 +295,8 @@
 
 ## PROTOCOL: Handle_Quest_Chain_Trigger
 
-**TRIGGER**: Quest completion triggers other events  
-**INPUT**: trigger_object  
+**TRIGGER**: Quest completion triggers other events
+**INPUT**: trigger_object
 **GUARD**: trigger_object_exists
 
 **PROCEDURE**:
@@ -274,24 +304,24 @@
 1. FOR trigger IN trigger_object.effects:
      a. CHECK: trigger.condition (if any)
      b. IF condition_not_met THEN CONTINUE
-     
+
      c. SWITCH trigger.type:
           CASE "npc_reaction":
             CALL: Handle_NPC_Reaction_Change WITH trigger
-          
+
           CASE "quest_unlock":
             GET: new_quest
             ADD: new_quest TO quests_available
             OUT: "New quest available: [quest_name]"
-          
+
           CASE "world_change":
             SET: story_flag = trigger.value
             IF trigger.announced THEN
               NARRATE: change
-          
+
           CASE "price_change":
             UPDATE: npc.price_modifier
-          
+
           CASE "location_change":
             UPDATE: location_state
 
@@ -301,8 +331,8 @@
 
 ## PROTOCOL: Track_Reputation_Change
 
-**TRIGGER**: Action affects reputation  
-**INPUT**: type (npc|faction|region), target_id, change_value, reason  
+**TRIGGER**: Action affects reputation
+**INPUT**: type (npc|faction|region), target_id, change_value, reason
 **GUARD**: valid_reputation_type
 
 **PROCEDURE**:
@@ -313,12 +343,12 @@
        b. ADD: change_value (clamp -10 to +10)
        c. UPDATE: notes WITH reason
        d. DETERMINE: attitude FROM reputation_table
-     
+
      CASE "faction":
        a. FIND_OR_CREATE: faction IN reputation.factions
        b. ADD: change_value (clamp -10 to +10)
        c. UPDATE: rank based on thresholds
-     
+
      CASE "region":
        a. FIND_OR_CREATE: region IN reputation.regions
        b. IF change_value > 0 THEN
