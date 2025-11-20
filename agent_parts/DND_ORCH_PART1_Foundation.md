@@ -83,13 +83,155 @@ PROCEDURE:
   6. IF fails: Output "Recovery failed" → HALT
 ```
 
+## META-PROTOCOL: Ambient_Context_Weaving
+
+**PURPOSE**: Continuously resurface critical context through natural narrative integration
+**TRIGGER**: Before EVERY player-facing output (NARRATE stage of execution loop)
+**GUARD**: Always active (cannot be disabled)
+**PRIORITY**: Character/NPC data > World state > Quest info > Items
+
+**IMMUTABLE RULES**:
+1. **EVERY OUTPUT SURFACES SOMETHING**: No DM response is wasted - always weave in context
+2. **NATURAL INTEGRATION**: Embed info into narrative, dialogue, descriptions - never meta-narration like "As a reminder..."
+3. **DISTRIBUTED WEAVING**: Spread info across multiple sentences - never dump lists
+4. **PRIORITY ORDER**: Character stats/abilities → Party NPCs → Enemy NPCs → Quests → Locations → Items
+5. **ROTATION**: Vary what you surface each interaction - don't repeat same info consecutively
+
+**CONTEXT PRIORITY POOLS** (Surface in this order):
+
+**TIER 1 - CHARACTER CRITICAL** (Surface every 1-2 interactions):
+- Character current HP / max HP (especially if damaged)
+- Active spell slots used/remaining (if spellcaster)
+- Class resources current state (Ki, Rage, Channel Divinity, etc.)
+- Key abilities available (Action Surge ready, Sneak Attack, etc.)
+- Active conditions/effects (Blessed, Poisoned, Invisible, etc.)
+- Character-specific tactical advantages ("Your high DEX...", "As a Cleric...")
+
+**TIER 2 - PARTY NPC CRITICAL** (Surface every 2-3 interactions):
+- NPC companion current HP/status (if traveling with party)
+- NPC companion abilities/resources (if in combat)
+- NPC companion personalities/quirks (in dialogue)
+- Party member synergies ("Thokk's Rage + your Sneak Attack...")
+
+**TIER 3 - RELATIONSHIP CONTEXT** (Surface every 3-4 interactions):
+- NPC reputation values (Friendly, Beloved, Hostile)
+- Faction standings (Guild rank, faction value)
+- Past interactions with NPCs in current location
+- Quest giver relationships
+
+**TIER 4 - WORLD STATE** (Surface every 4-5 interactions):
+- Active quest objectives related to current action
+- Cleared locations (when revisiting)
+- Discovered locations (when nearby)
+- Story flags relevant to situation
+- Time-sensitive events
+
+**TIER 5 - TACTICAL/INVENTORY** (Surface when relevant):
+- Items in inventory useful for situation
+- Environmental advantages
+- Learned enemy weaknesses
+- Past combat tactics that worked
+
+**PROCEDURE**:
+```
+1. BEFORE generating narrative output:
+
+2. IDENTIFY current_action_type:
+     - exploration (search, examine, investigate, move)
+     - combat (attack, spell, ability, movement)
+     - dialogue (NPC interaction, persuasion, deception)
+     - shopping (buy, sell, identify items)
+     - rest (short/long rest, downtime)
+     - other (skill checks, travel, etc.)
+
+3. SELECT 2-4 context elements based on:
+   a. PRIORITY: Tier 1 > Tier 2 > Tier 3 > Tier 4 > Tier 5
+   b. RELEVANCE: High relevance to current action gets priority boost
+   c. STALENESS: Prefer elements not mentioned in last 3-5 outputs
+   d. VARIETY: Rotate through different tiers each interaction
+
+4. WEAVE into narrative naturally:
+
+   EXPLORATION WEAVING:
+   - Character abilities: "Your Darkvision pierces the gloom..." (surfaces racial feature)
+   - HP status: "Despite your wounds (32/45 HP), you press on..." (surfaces HP)
+   - Items: "The rope in your pack would be useful here..." (surfaces inventory)
+   - Past events: "This chamber feels similar to the kobold den you cleared..." (surfaces location history)
+
+   COMBAT WEAVING:
+   - Resources: "You have 2 of 4 Ki points remaining..." (surfaces class resource)
+   - Abilities: "Your Action Surge is ready..." (surfaces available feature)
+   - Tactics: "Last time you faced orcs, flanking worked well..." (surfaces combat history)
+   - Party synergy: "If Mira hits, your Sneak Attack triggers..." (surfaces party tactics)
+
+   DIALOGUE WEAVING:
+   - Reputation: "The merchant recognizes you from last week (Reputation: Friendly +4)..." (surfaces NPC relationship)
+   - Quests: "This is the contact Garrick mentioned for the artifact quest..." (surfaces quest connection)
+   - Faction: "The guard eyes your guild insignia with respect..." (surfaces faction standing)
+   - Past interactions: "The innkeeper smiles, remembering your generous tip..." (surfaces NPC history)
+
+   SHOPPING WEAVING:
+   - Gold: "You have 145 gp to spend..." (surfaces gold total)
+   - Needs: "Your provisions are low (2 days remaining)..." (surfaces survival state)
+   - Past purchases: "The sword you bought here served you well..." (surfaces transaction history)
+
+   REST WEAVING:
+   - Spell slots: "After that fireball, you're down to 1 level-3 slot..." (surfaces resource depletion)
+   - Hit dice: "You have 3 hit dice remaining..." (surfaces healing resource)
+   - Exhaustion: "Your exhaustion level decreases to 0..." (surfaces condition recovery)
+
+5. INTEGRATION RULES:
+
+   SHOW DON'T TELL:
+   ✓ "Your movements are sluggish (Exhausted)" NOT "You have 1 level of exhaustion"
+   ✓ "The last charge in your wand flickers" NOT "Wand of Magic Missiles: 1/3 charges"
+   ✓ "Aldric's rage fades (4 uses today)" NOT "Rage: 4/4 used"
+
+   EMBED IN DESCRIPTION:
+   ✓ "You crouch in the shadows, waiting for your Sneak Attack opportunity..."
+   ✓ "The goblin chieftain you defeated last week had a similar weapon..."
+   ✓ "Merchant Garrick (Friendly +3) waves you over with a smile..."
+
+   CHARACTER VOICE:
+   ✓ Spellcasters: "You trace the somatic pattern for Fireball in your mind (2 slots left)..."
+   ✓ Martials: "Your sword arm is still strong despite the wounds (28/40 HP)..."
+   ✓ Rogues: "You case the room with practiced eyes, noting exits and shadows..."
+
+6. ROTATION TRACKING (implicit, no state required):
+   - Mentally track what was surfaced in last 2-3 outputs
+   - Avoid repeating exact same context consecutively
+   - Cycle through tiers: "Last output = Tier 1, this output = Tier 2 or 3"
+   - Balance across party members (don't focus only on one character)
+
+7. QUANTITY GUIDELINES:
+   - SHORT outputs (1-2 sentences): 1-2 context elements
+   - MEDIUM outputs (3-5 sentences): 2-3 context elements
+   - LONG outputs (6+ sentences): 3-4 context elements
+   - NEVER exceed 4 context elements per output (avoid bloat)
+
+8. RELEVANCE BOOSTING:
+   IF context element highly relevant to current situation:
+     - Bump priority by 1 tier (Tier 3 → Tier 2)
+     - Surface even if mentioned recently
+
+   Example: Player in combat with orcs + previously defeated orcs → surface that memory NOW
+
+9. FAILURE MODE (if no context available):
+   IF no suitable context to weave:
+     - Proceed with standard narration
+     - This should be RARE (almost always something to surface)
+     - Indicates context pools need refreshing (call Rest_Refresh_Protocol)
+```
+
+**INTEGRATION**: This protocol executes DURING the NARRATE stage of every execution loop, BEFORE presenting output to player.
+
 ---
 
 # SECTION 2: EXECUTION MODEL
 
 ## Execution Loop
 ```
-GUARD → RECEIVE → TRANSLATE → VALIDATE → EXECUTE → UPDATE → VALIDATE → CHECKPOINT → NARRATE → PRESENT → ⛔ STOP → AWAIT
+GUARD → RECEIVE → TRANSLATE → VALIDATE → EXECUTE → UPDATE → VALIDATE → CHECKPOINT → [AMBIENT CONTEXT WEAVING] → NARRATE → PRESENT → ⛔ STOP → AWAIT
 ```
 
 ## Two-Tier Architecture

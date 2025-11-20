@@ -1,5 +1,5 @@
-# D&D 5E ORCHESTRATOR v6.7.0 LEAN
-**Version**: 6.7.0 Lean | **Base**: v3.6 + Enforcement | **Updated**: Nov 19, 2025
+# D&D 5E ORCHESTRATOR v6.7.4 LEAN
+**Version**: 6.7.4 Lean | **Base**: v3.6 + Enforcement | **Updated**: Nov 19, 2025
 
 ---
 
@@ -83,13 +83,155 @@ PROCEDURE:
   6. IF fails: Output "Recovery failed" → HALT
 ```
 
+## META-PROTOCOL: Ambient_Context_Weaving
+
+**PURPOSE**: Continuously resurface critical context through natural narrative integration
+**TRIGGER**: Before EVERY player-facing output (NARRATE stage of execution loop)
+**GUARD**: Always active (cannot be disabled)
+**PRIORITY**: Character/NPC data > World state > Quest info > Items
+
+**IMMUTABLE RULES**:
+1. **EVERY OUTPUT SURFACES SOMETHING**: No DM response is wasted - always weave in context
+2. **NATURAL INTEGRATION**: Embed info into narrative, dialogue, descriptions - never meta-narration like "As a reminder..."
+3. **DISTRIBUTED WEAVING**: Spread info across multiple sentences - never dump lists
+4. **PRIORITY ORDER**: Character stats/abilities → Party NPCs → Enemy NPCs → Quests → Locations → Items
+5. **ROTATION**: Vary what you surface each interaction - don't repeat same info consecutively
+
+**CONTEXT PRIORITY POOLS** (Surface in this order):
+
+**TIER 1 - CHARACTER CRITICAL** (Surface every 1-2 interactions):
+- Character current HP / max HP (especially if damaged)
+- Active spell slots used/remaining (if spellcaster)
+- Class resources current state (Ki, Rage, Channel Divinity, etc.)
+- Key abilities available (Action Surge ready, Sneak Attack, etc.)
+- Active conditions/effects (Blessed, Poisoned, Invisible, etc.)
+- Character-specific tactical advantages ("Your high DEX...", "As a Cleric...")
+
+**TIER 2 - PARTY NPC CRITICAL** (Surface every 2-3 interactions):
+- NPC companion current HP/status (if traveling with party)
+- NPC companion abilities/resources (if in combat)
+- NPC companion personalities/quirks (in dialogue)
+- Party member synergies ("Thokk's Rage + your Sneak Attack...")
+
+**TIER 3 - RELATIONSHIP CONTEXT** (Surface every 3-4 interactions):
+- NPC reputation values (Friendly, Beloved, Hostile)
+- Faction standings (Guild rank, faction value)
+- Past interactions with NPCs in current location
+- Quest giver relationships
+
+**TIER 4 - WORLD STATE** (Surface every 4-5 interactions):
+- Active quest objectives related to current action
+- Cleared locations (when revisiting)
+- Discovered locations (when nearby)
+- Story flags relevant to situation
+- Time-sensitive events
+
+**TIER 5 - TACTICAL/INVENTORY** (Surface when relevant):
+- Items in inventory useful for situation
+- Environmental advantages
+- Learned enemy weaknesses
+- Past combat tactics that worked
+
+**PROCEDURE**:
+```
+1. BEFORE generating narrative output:
+
+2. IDENTIFY current_action_type:
+     - exploration (search, examine, investigate, move)
+     - combat (attack, spell, ability, movement)
+     - dialogue (NPC interaction, persuasion, deception)
+     - shopping (buy, sell, identify items)
+     - rest (short/long rest, downtime)
+     - other (skill checks, travel, etc.)
+
+3. SELECT 2-4 context elements based on:
+   a. PRIORITY: Tier 1 > Tier 2 > Tier 3 > Tier 4 > Tier 5
+   b. RELEVANCE: High relevance to current action gets priority boost
+   c. STALENESS: Prefer elements not mentioned in last 3-5 outputs
+   d. VARIETY: Rotate through different tiers each interaction
+
+4. WEAVE into narrative naturally:
+
+   EXPLORATION WEAVING:
+   - Character abilities: "Your Darkvision pierces the gloom..." (surfaces racial feature)
+   - HP status: "Despite your wounds (32/45 HP), you press on..." (surfaces HP)
+   - Items: "The rope in your pack would be useful here..." (surfaces inventory)
+   - Past events: "This chamber feels similar to the kobold den you cleared..." (surfaces location history)
+
+   COMBAT WEAVING:
+   - Resources: "You have 2 of 4 Ki points remaining..." (surfaces class resource)
+   - Abilities: "Your Action Surge is ready..." (surfaces available feature)
+   - Tactics: "Last time you faced orcs, flanking worked well..." (surfaces combat history)
+   - Party synergy: "If Mira hits, your Sneak Attack triggers..." (surfaces party tactics)
+
+   DIALOGUE WEAVING:
+   - Reputation: "The merchant recognizes you from last week (Reputation: Friendly +4)..." (surfaces NPC relationship)
+   - Quests: "This is the contact Garrick mentioned for the artifact quest..." (surfaces quest connection)
+   - Faction: "The guard eyes your guild insignia with respect..." (surfaces faction standing)
+   - Past interactions: "The innkeeper smiles, remembering your generous tip..." (surfaces NPC history)
+
+   SHOPPING WEAVING:
+   - Gold: "You have 145 gp to spend..." (surfaces gold total)
+   - Needs: "Your provisions are low (2 days remaining)..." (surfaces survival state)
+   - Past purchases: "The sword you bought here served you well..." (surfaces transaction history)
+
+   REST WEAVING:
+   - Spell slots: "After that fireball, you're down to 1 level-3 slot..." (surfaces resource depletion)
+   - Hit dice: "You have 3 hit dice remaining..." (surfaces healing resource)
+   - Exhaustion: "Your exhaustion level decreases to 0..." (surfaces condition recovery)
+
+5. INTEGRATION RULES:
+
+   SHOW DON'T TELL:
+   ✓ "Your movements are sluggish (Exhausted)" NOT "You have 1 level of exhaustion"
+   ✓ "The last charge in your wand flickers" NOT "Wand of Magic Missiles: 1/3 charges"
+   ✓ "Aldric's rage fades (4 uses today)" NOT "Rage: 4/4 used"
+
+   EMBED IN DESCRIPTION:
+   ✓ "You crouch in the shadows, waiting for your Sneak Attack opportunity..."
+   ✓ "The goblin chieftain you defeated last week had a similar weapon..."
+   ✓ "Merchant Garrick (Friendly +3) waves you over with a smile..."
+
+   CHARACTER VOICE:
+   ✓ Spellcasters: "You trace the somatic pattern for Fireball in your mind (2 slots left)..."
+   ✓ Martials: "Your sword arm is still strong despite the wounds (28/40 HP)..."
+   ✓ Rogues: "You case the room with practiced eyes, noting exits and shadows..."
+
+6. ROTATION TRACKING (implicit, no state required):
+   - Mentally track what was surfaced in last 2-3 outputs
+   - Avoid repeating exact same context consecutively
+   - Cycle through tiers: "Last output = Tier 1, this output = Tier 2 or 3"
+   - Balance across party members (don't focus only on one character)
+
+7. QUANTITY GUIDELINES:
+   - SHORT outputs (1-2 sentences): 1-2 context elements
+   - MEDIUM outputs (3-5 sentences): 2-3 context elements
+   - LONG outputs (6+ sentences): 3-4 context elements
+   - NEVER exceed 4 context elements per output (avoid bloat)
+
+8. RELEVANCE BOOSTING:
+   IF context element highly relevant to current situation:
+     - Bump priority by 1 tier (Tier 3 → Tier 2)
+     - Surface even if mentioned recently
+
+   Example: Player in combat with orcs + previously defeated orcs → surface that memory NOW
+
+9. FAILURE MODE (if no context available):
+   IF no suitable context to weave:
+     - Proceed with standard narration
+     - This should be RARE (almost always something to surface)
+     - Indicates context pools need refreshing (call Rest_Refresh_Protocol)
+```
+
+**INTEGRATION**: This protocol executes DURING the NARRATE stage of every execution loop, BEFORE presenting output to player.
+
 ---
 
 # SECTION 2: EXECUTION MODEL
 
 ## Execution Loop
 ```
-GUARD → RECEIVE → TRANSLATE → VALIDATE → EXECUTE → UPDATE → VALIDATE → CHECKPOINT → NARRATE → PRESENT → ⛔ STOP → AWAIT
+GUARD → RECEIVE → TRANSLATE → VALIDATE → EXECUTE → UPDATE → VALIDATE → CHECKPOINT → [AMBIENT CONTEXT WEAVING] → NARRATE → PRESENT → ⛔ STOP → AWAIT
 ```
 
 ## Two-Tier Architecture
@@ -1207,11 +1349,30 @@ Deep_Rotation_Refresh:
      d. UPDATE: character state
      e. OUT: "✓ [Name]: Resources restored"
 
-4. CALL: Time_Tracking_Protocol WITH minutes_to_add=60
-5. OUT: "=== Short Rest Complete ==="
-6. CALL: Rest_Refresh_Protocol WITH rest_type="short"
-7. UPDATE: party_state
-8. RETURN
+4. FOR character IN party_state.characters:
+     a. CALC: ability_index = rest_count % 4
+     b. GET: class_resources = character.resources.class_resources
+     c. GET: class = character.identity.class
+
+     d. IF class_resources NOT empty OR class IN [Fighter, Barbarian, Monk, Ranger, Rogue, Paladin]:
+          SWITCH ability_index:
+            CASE 0: OUT: "Before resting, [Name] practices core combat techniques and reviews ability usage."
+            CASE 1: OUT: "[Name] mentally rehearses tactical maneuvers and special abilities."
+            CASE 2: OUT: "Before resting, [Name] runs through practice drills for class abilities."
+            CASE 3: OUT: "[Name] reviews recent combat experiences and refines techniques."
+
+     e. ELSE IF character.spells exists:
+          SWITCH ability_index:
+            CASE 0: OUT: "Before resting, [Name] mentally rehearses somatic components for key spells."
+            CASE 1: OUT: "[Name] reviews arcane theory and spell patterns."
+            CASE 2: OUT: "Before resting, [Name] practices verbal components and gestures."
+            CASE 3: OUT: "[Name] meditates on spell structures and magical principles."
+
+5. CALL: Time_Tracking_Protocol WITH minutes_to_add=60
+6. OUT: "=== Short Rest Complete ==="
+7. CALL: Rest_Refresh_Protocol WITH rest_type="short"
+8. UPDATE: party_state
+9. RETURN
 ```
 
 ## PROTOCOL: Long_Rest_Protocol
@@ -1219,67 +1380,79 @@ Deep_Rotation_Refresh:
 **TRIGGER**: Long rest initiated
 **GUARD**: none
 
+**IMMUTABLE OUTPUT RULES**:
+1. **MANDATORY ABILITY REVIEW**: You MUST include a "🧠 SPELL & ABILITY REVIEW" section.
+2. **ROTATION**: For each character, select 1-2 specific abilities/spells to narrate them practicing/memorizing. Do not list their entire sheet.
+3. **FLAVOR**: Describe *how* they prepare (e.g., "Wizard memorizes gestures," "Fighter drills footwork").
+
 **PROCEDURE**:
 ```
-1. OUT: "=== Long Rest (8 hours) ==="
-2. SET: starvation_list = []
-3. SET: dehydration_list = []
+1. OUT: "=== ⛺ Long Rest (8 hours) ==="
 
-4. FOR character IN party_state.characters:
+2. MECHANICAL RESTORATION:
+   FOR character IN party_state.characters:
      a. SET: character.hp_current = character.hp_max
-     b. RESTORE: character.hit_dice_remaining = max(1, total/2)
+     b. RESTORE: character.hit_dice_remaining = min(total, current + total/2)
      c. RESTORE: ALL spell slots to max
      d. RESTORE: class resources (per PHB long rest rules - action surge, ki, rages, channel divinity, wild shape, sorcery points, etc.)
      e. CLEAR: exhaustion level (reduce by 1)
-     f. SILENTLY CHECK provisions:
-          IF provisions > 0: DEC provisions by 1; SET days_without_food = 0
-          ELSE: INC days_without_food; IF > (3 + CON_mod): ADD 1 exhaustion; ADD name TO starvation_list
-     g. SILENTLY CHECK water:
-          IF water > 0: DEC water by 1
-          ELSE: ADD 1 exhaustion; ADD name TO dehydration_list
+     f. CONSUME: 1 ration (DEC provisions by 1; IF provisions <= 0: ADD 1 exhaustion, SET starvation warning)
+     g. CONSUME: 1 water (DEC water by 1; IF water <= 0: ADD 1 exhaustion, SET dehydration warning)
 
-5. IF starvation_list empty AND dehydration_list empty:
-     OUT: "✓ Party fully rested. Rations and water consumed."
-6. ELSE:
+3. IF starvation or dehydration warnings triggered:
      OUT: "⚠️ RESOURCES CRITICAL:"
-     IF starvation_list: OUT: "- Starving: [starvation_list]"
-     IF dehydration_list: OUT: "- Dehydrated: [dehydration_list]"
+     IF starvation: OUT: "- Characters are starving (no provisions)"
+     IF dehydration: OUT: "- Characters are dehydrated (no water)"
+   ELSE:
+     OUT: "✓ Party fully rested. Rations and water consumed."
 
-7. FOR character IN party_state.characters:
-     IF character.spells exists AND character.class IN prepared_casters [Wizard, Cleric, Druid, Paladin, Ranger]:
-       a. CALC: max_prepared = spellcasting_ability_modifier + level
-          (Wizard: INT_mod + level, Cleric/Druid: WIS_mod + level, Paladin: CHA_mod + level/2, Ranger: WIS_mod + level/2)
-       b. GET: current_prepared_spells = FILTER(character.spells.spells_known WHERE prepared == true)
-       c. OUT: "📜 [character.name] Spell Preparation"
-       d. OUT: "Can prepare [max_prepared] spells"
-       e. OUT: "Current prepared: [list current_prepared_spells]"
-       f. PROMPT: "Change prepared spells? (yes/no)"
-       g. ⛔ WAIT: change_preparation
-       h. IF change_preparation == "yes":
-            i. SHOW: all spells in character.spells.spells_known (excluding cantrips)
-            ii. OUT: "Choose up to [max_prepared] spells to prepare (comma-separated):"
-            iii. ⛔ WAIT: new_prepared_list
-            iv. VALIDATE:
-                - count <= max_prepared
-                - all spells IN spells_known
-                - all spells level > 0 (cantrips always prepared, not counted)
-            v. IF validation_failed:
-                 OUT: "⚠️ Invalid preparation (too many or unknown spells)"
-                 RETURN to step 7h.ii
-            vi. FOR spell IN character.spells.spells_known:
-                  IF spell.level > 0:
-                    SET spell.prepared = (spell IN new_prepared_list)
-            vii. OUT: "✓ [character.name] prepared [count] spells"
-       i. ELSE:
-            OUT: "✓ [character.name] keeping current spell preparation"
-     ELSE IF character.spells exists AND character.class IN spontaneous_casters [Bard, Sorcerer, Warlock]:
-       OUT: "✓ [character.name]'s spells ready (spontaneous caster - all spells always prepared)"
+4. PREPARED CASTERS (Wizard/Cleric/Druid/Paladin/Ranger):
+   FOR character IN party_state.characters WHERE character.class IN prepared_casters:
+     a. OUT: "📜 SPELL PREPARATION"
+     b. CALC: max_prepared = spellcasting_ability_modifier + level
+        (Wizard: INT_mod + level, Cleric/Druid: WIS_mod + level, Paladin: CHA_mod + level/2, Ranger: WIS_mod + level/2)
+     c. GET: current_prepared = FILTER(character.spells.spells_known WHERE prepared == true)
+     d. OUT: "[character.name]: Can prepare [max_prepared] spells."
+     e. OUT: "Current prepared: [list current_prepared]"
+     f. PROMPT: "Change prepared spells? (yes/no)"
+     g. ⛔ WAIT: change_preparation
+     h. IF change_preparation == "yes":
+          i. SHOW: all spells in spells_known (excluding cantrips)
+          ii. OUT: "Choose up to [max_prepared] spells (comma-separated):"
+          iii. ⛔ WAIT: new_prepared_list
+          iv. VALIDATE: count <= max_prepared AND all spells IN spells_known
+          v. IF validation_failed:
+               OUT: "⚠️ Invalid preparation (too many or unknown spells)"
+               RETURN to step 4h.ii
+          vi. UPDATE: Set prepared flag for selected spells, clear others
+          vii. OUT: "✓ [character.name] prepared [count] spells"
+     i. ELSE:
+          OUT: "✓ [character.name] keeping current spell preparation"
 
-8. CALL: Time_Tracking_Protocol WITH minutes_to_add=480
-9. OUT: "=== Long Rest Complete ==="
-10. CALL: Rest_Refresh_Protocol WITH rest_type="long"
-11. UPDATE: party_state
-12. RETURN
+5. 🧠 SPELL & ABILITY REVIEW (MANDATORY):
+   OUT: "━━━ 🧠 ABILITY REFRESH ━━━"
+
+   FOR character IN party_state.characters:
+     a. PICK: 1-2 key features from:
+          - Spellcasters: Select 1-2 specific spells they know
+          - Martials: Select 1-2 class features (Action Surge, Rage, Ki, Sneak Attack, etc.)
+          - Mixed: Balance between spells and abilities
+
+     b. NARRATE: The character reviewing/practicing these specific traits.
+        Examples:
+          - "Gandros recites the verbal component for Fireball, tracing the somatic gestures in the air."
+          - "Aldric drills the footwork for his Action Surge combo, practicing quick weapon transitions."
+          - "Mira meditates on her Favored Enemy knowledge, reviewing goblin tactics and weaknesses."
+          - "Thokk practices entering a controlled rage, focusing his anger into precise strikes."
+
+     c. VARY: Do not use the same abilities every rest. Rotate through character capabilities.
+
+6. FINALIZE:
+   CALL: Time_Tracking_Protocol WITH minutes_to_add=480
+   OUT: "=== Long Rest Complete ==="
+   CALL: Rest_Refresh_Protocol WITH rest_type="long"
+   UPDATE: party_state
+   RETURN
 ```
 
 ## PROTOCOL: Light_Source_Tracking
@@ -2275,8 +2448,14 @@ Deep_Rotation_Refresh:
 
 ## PROTOCOL: Save_State_Protocol
 
-**TRIGGER**: Session end with save requested
+**TRIGGER**: Session end with save requested OR user command "save game"
 **GUARD**: party_state_valid AND no_combat_active
+
+**IMMUTABLE OUTPUT RULES**:
+1. **NO SUMMARIZATION**: Output MUST include specific values for every character's HP, Slots, XP, Gold, and Inventory.
+2. **NO ABBREVIATION**: Do not use "etc" or "rest of items." List EVERYTHING.
+3. **FULL FIDELITY**: The output must be sufficient to reconstruct the game state in a completely new chat instance with zero data loss.
+4. **FORMAT**: Must match the "Save File Metadata" structure used in loading.
 
 **PROCEDURE**:
 ```
@@ -2286,16 +2465,190 @@ Deep_Rotation_Refresh:
      OUT: "Errors: [list]"
      RETURN
 
-3. GENERATE: filename = "[campaign]_S[num]_[date].md"
+3. OUT: "💾 GENERATING FULL-FIDELITY SAVE FILE..."
+4. OUT: "⚠️ COPY THE TEXT BELOW BETWEEN THE START/END MARKERS"
 
-4. FORMAT save_file: Campaign/Session/Date/Location + party_state JSON + session summary
+5. GENERATE OUTPUT BLOCK:
 
-5. CALL: create_file(/mnt/user-data/outputs/[filename], save_file_content)
+--- START OF FILE [Campaign_Name]_Save_Day[Day]_[Time].md ---
 
-6. GENERATE: download_link = computer:///mnt/user-data/outputs/[filename]
+=== CAMPAIGN HEADER ===
+Campaign: [campaign_name]
+Session: [session_number]
+Date: [timestamp]
+Location: [current_location] (Previous: [previous_location])
+Save Version: 2.0
+In-Game Time: Day [time_elapsed], [time_of_day], [time_minutes] total minutes
 
-7. OUT: "✓ Save file created: [View your save](computer:///mnt/user-data/outputs/[filename])"
+=== CHARACTER ROSTER ===
 
+FOR EACH character IN party_state.characters:
+
+  CHARACTER: [character.identity.name]
+  Race: [race] | Class: [class] [level] | Background: [background]
+  Alignment: [alignment] | XP: [xp_current] / [xp_next_level]
+
+  COMBAT STATS:
+    HP: [hp_current] / [hp_max] | AC: [armor_class] | Speed: [speed] ft
+    Initiative: +[initiative_bonus] | Proficiency: +[proficiency_bonus]
+    Hit Dice: [hit_dice_total] ([hit_dice_remaining] remaining)
+    Death Saves: Successes [successes], Failures [failures]
+    Reaction Available: [reaction_available]
+
+  ABILITY SCORES:
+    STR: [score] ([modifier]) [Save Prof: yes/no]
+    DEX: [score] ([modifier]) [Save Prof: yes/no]
+    CON: [score] ([modifier]) [Save Prof: yes/no]
+    INT: [score] ([modifier]) [Save Prof: yes/no]
+    WIS: [score] ([modifier]) [Save Prof: yes/no]
+    CHA: [score] ([modifier]) [Save Prof: yes/no]
+
+  SPELL SLOTS (if spellcaster):
+    Spellcasting Ability: [spellcasting_ability]
+    Spell Save DC: [spell_save_dc] | Spell Attack: +[spell_attack_bonus]
+    Level 1: [current] / [max]
+    Level 2: [current] / [max]
+    Level 3: [current] / [max]
+    Level 4: [current] / [max]
+    Level 5: [current] / [max]
+    Level 6: [current] / [max]
+    Level 7: [current] / [max]
+    Level 8: [current] / [max]
+    Level 9: [current] / [max]
+    (List ONLY levels where max > 0)
+
+  SPELLS KNOWN (if spellcaster):
+    FOR EACH spell IN character.spells.spells_known:
+      - [spell.name] (Level [spell.level]) [Prepared: yes/no]
+
+  CLASS RESOURCES:
+    FOR EACH resource IN character.resources.class_resources:
+      - [resource.name]: [current] / [max] (Resets on: [reset_on])
+
+  INVENTORY:
+    Gold: [gold] gp
+
+    EQUIPMENT (Equipped):
+      FOR EACH item IN equipment WHERE equipped == true:
+        - [item.name] ([item.type], [item.properties])
+
+    MAGIC ITEMS:
+      FOR EACH item IN magic_items:
+        - [item.name] (Attuned: [attuned yes/no]) - [item.description]
+
+    BACKPACK:
+      FOR EACH item IN equipment WHERE equipped == false:
+        - [item.name] x[quantity]
+
+    AMMUNITION:
+      FOR EACH ammo IN ammo:
+        - [ammo.type]: [ammo.count]
+
+    Carrying Weight: [carrying_weight] lbs
+
+  SURVIVAL:
+    Provisions: [provisions] days
+    Water: [water] days
+    Days Without Food: [days_without_food]
+    Active Light Sources:
+      FOR EACH light IN active_light_sources:
+        - [light.type]: [light.remaining_duration] minutes remaining
+
+  PROFICIENCIES:
+    Armor: [comma-separated list]
+    Weapons: [comma-separated list]
+    Tools: [comma-separated list]
+    Skills:
+      FOR EACH skill IN skills:
+        - [skill.name] [Proficient: yes/no] [Expertise: yes/no]
+
+  ACTIVE CONDITIONS: [comma-separated list OR "None"]
+
+  NOTES:
+    Personality Traits: [personality_traits]
+    Ideals: [ideals]
+    Bonds: [bonds]
+    Flaws: [flaws]
+
+  ---
+
+END CHARACTER LOOP
+
+=== PARTY RESOURCES ===
+Shared Gold: [shared_gold] gp
+Shared Items:
+  FOR EACH item IN party_resources.shared_items:
+    - [item.name] x[quantity]
+
+=== WORLD STATE ===
+
+DISCOVERED LOCATIONS: [comma-separated list]
+CLEARED LOCATIONS: [comma-separated list]
+
+NPC REPUTATION:
+  FOR EACH npc IN world_state.reputation.npcs:
+    - [npc.npc_id]: [npc.value] ([npc.notes])
+
+FACTION STANDING:
+  FOR EACH faction IN world_state.reputation.factions:
+    - [faction.faction_id]: [faction.value] (Rank: [faction.rank])
+
+REGION REPUTATION:
+  FOR EACH region IN world_state.reputation.regions:
+    - [region.region_id]: Fame [region.fame], Infamy [region.infamy]
+      Known Deeds: [comma-separated known_deeds]
+
+STORY FLAGS:
+  FOR EACH flag IN world_state.story_flags:
+    - [flag_name]: [value]
+
+=== QUEST LOG ===
+
+ACTIVE QUESTS:
+  FOR EACH quest_id IN campaign_state.quests_active:
+    - [quest_id] ([quest_name from campaign module])
+      Progress: [progress_description]
+      Objectives:
+        FOR EACH objective IN quest.objectives:
+          - [objective.description] [Completed: yes/no]
+
+COMPLETED QUESTS: [comma-separated quest_ids]
+AVAILABLE QUESTS: [comma-separated quest_ids]
+FAILED QUESTS: [comma-separated quest_ids]
+
+=== COMBAT STATE ===
+Active: [yes/no]
+IF active == true:
+  Round: [round]
+  Current Turn: [current_turn]
+  Initiative Order:
+    FOR EACH combatant IN initiative_order:
+      - [combatant.name]: [combatant.initiative]
+  Defeated Enemies:
+    FOR EACH enemy IN defeated_enemies:
+      - [enemy.name] ([enemy.monster_id])
+
+=== SESSION METADATA ===
+
+Refresh State (Context Rotation):
+  NPC Index: [npc_index]
+  Item Toggle: [item_toggle]
+  Location Index: [location_index]
+  Rest Count: [rest_count]
+
+Immediate Situation:
+  [Describe in 2-3 sentences: Where is the party right now? What room/area?
+   What just happened in the last action? Are they mid-conversation with an NPC?
+   Any immediate threats or opportunities visible?]
+
+Tactical Notes:
+  [Resources spent this session, active threats, environmental conditions,
+   time-sensitive events, anything that affects immediate next action]
+
+--- END OF FILE ---
+
+6. OUT: "✓ Save Complete. Copy the block above to resume later."
+7. OUT: "📋 To resume: Start new session → choose 'Resume' → paste this entire block"
 8. RETURN
 ```
 
