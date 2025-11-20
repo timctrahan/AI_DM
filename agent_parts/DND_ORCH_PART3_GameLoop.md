@@ -56,7 +56,26 @@
      - Check inventory/character sheets
      - View active quests
 
-3. FORMAT decision point:
+3. DISPLAY MANDATORY HUD:
+   GET: active_light = character.active_light_sources[0] IF exists ELSE "None"
+   GET: total_rations = SUM(character.survival.provisions FOR character IN party)
+   GET: total_water = SUM(character.survival.water FOR character IN party)
+   GET: load_status = "OK" OR "Enc" OR "Hvy" (based on Encumbrance_Check)
+   GET: time = party_state.world_state.time_of_day (morning/afternoon/evening/night)
+
+   OUT: "━━━ 📊 STATUS ━━━"
+   OUT: "🕒 Time: Day [day_num], [time]"
+   OUT: "🔦 Light: [active_light.type] ([active_light.remaining] min) | Vision: [Normal/Dim/Dark]"
+   OUT: "🎒 Load: [FOR character: [name]: [load_status]]"
+   OUT: "🍖 Rations: [total_rations] | 💧 Water: [total_water]"
+   OUT: "🏹 Ammo: [FOR character WITH ranged weapons: [name]: [ammo.type] [ammo.count]]"
+   OUT: "💰 Gold: [party_gold] gp"
+   IF active_effects EXISTS:
+     OUT: "🧙 Active Effects: [list effects with duration]"
+   OUT: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+   OUT: ""
+
+4. FORMAT decision point:
    ---
    1. [Available action 1]
    2. [Available action 2]
@@ -66,12 +85,10 @@
 
    What do you do?
 
-   [🔦 Light: X min | 🍖 Rations: X | 💧 Water: X | 🎒 Load: OK/Enc/Hvy]
+5. ⛔ WAIT: player_choice
 
-4. ⛔ WAIT: player_choice
-
-5. PARSE: player_choice
-6. SWITCH action_type:
+6. PARSE: player_choice
+7. SWITCH action_type:
      CASE movement:
        CALL: Movement_Protocol WITH destination
      CASE investigate:
@@ -89,9 +106,9 @@
      DEFAULT:
        CALL: Handle_Freeform_Action WITH description
 
-7. UPDATE: party_state
-8. CHECK: state_consistency
-9. RETURN to Game_Loop
+8. UPDATE: party_state
+9. CHECK: state_consistency
+10. RETURN to Game_Loop
 ```
 
 ## PROTOCOL: Movement_Protocol
@@ -107,25 +124,23 @@
      OUT: "Cannot move to [destination] from here."
      RETURN
 
-3. CHECK: random_encounter_trigger
-4. IF encounter_triggered THEN
-     ROLL: encounter_table FOR current_location
-     IF combat_encounter THEN
-       CALL: Combat_Initiation_Protocol WITH encounter
-       RETURN
-     ELSE IF event_encounter THEN
-       NARRATE: event
-       ⛔ WAIT: player_response
-       HANDLE: response
+3. CALL: Random_Encounter_Protocol WITH encounter_context="movement", location_id=current
+4. IF encounter_occurred AND in_combat:
+     RETURN (encounter protocol handles combat initiation)
 
 5. UPDATE: party_state.location.previous = current
 6. UPDATE: party_state.location.current = destination
 7. ADD: destination TO locations_discovered (if new)
-8. INC: time_elapsed appropriately
+8. CALL: Time_Tracking_Protocol WITH minutes_to_add=60
 
-9. NARRATE: arrival at destination
-10. DESCRIBE: new location
-11. RETURN to Exploration_Protocol
+9. CALL: Context_Confidence_Check WITH data_type="location", data_id=destination
+10. NARRATE: arrival at destination
+11. DESCRIBE: new location
+
+12. IF destination.is_hub OR destination.is_town:
+     CALL: Hub_Entry_Protocol WITH destination
+
+13. RETURN to Exploration_Protocol
 ```
 
 ## PROTOCOL: Investigation_Protocol
@@ -137,7 +152,20 @@
 **PROCEDURE**:
 ```
 1. GET: object_data FROM campaign.locations[current].interactable_objects
-2. IF object_requires_check THEN
+
+2. CHECK lighting_conditions IF check requires sight:
+   GET: has_light = ANY(character.active_light_sources) OR location.lighting == "bright"
+   GET: is_dim = location.lighting == "dim" OR (NOT has_light AND character.darkvision)
+   GET: is_dark = NOT has_light AND NOT character.darkvision
+
+   IF is_dark AND check_requires_sight:
+     OUT: "⚠️ Too dark to see - need light source or darkvision!"
+     RETURN
+   ELSE IF is_dim:
+     OUT: "⚠️ Dim light - Disadvantage on Perception checks"
+     SET: disadvantage_on_perception = true
+
+3. IF object_requires_check THEN
      a. DETERMINE: check_type (Perception, Investigation, etc.)
      b. DETERMINE: DC
      c. PROMPT: "Roll [check_type] check (or let me roll):"
@@ -164,8 +192,11 @@
 5. IF object.contains_loot THEN
      CALL: Loot_Distribution_Protocol WITH object.loot
 
-6. UPDATE: object.state (if applicable)
-7. RETURN to Exploration_Protocol
+6. IF object.triggers_quest_progress THEN
+     CALL: Quest_Progress_Update_Protocol WITH quest_id=object.quest_id, objective_id=object.objective_id, progress_description=object.progress_update
+
+7. UPDATE: object.state (if applicable)
+8. RETURN to Exploration_Protocol
 ```
 
 ## PROTOCOL: NPC_Interaction_Protocol
@@ -176,8 +207,9 @@
 
 **PROCEDURE**:
 ```
-1. GET: npc FROM campaign.npcs
-2. CHECK: current_reputation WITH npc
+1. CALL: Context_Confidence_Check WITH data_type="npc", data_id=npc_id
+2. GET: npc FROM campaign.npcs
+3. CHECK: current_reputation WITH npc
 3. ADJUST: npc_attitude based on reputation
 
 4. IF npc.has_shop AND player_requests_shop THEN
@@ -365,12 +397,15 @@
        d. IF validation_failed THEN
             OUT: reason
             GOTO step 3
-       e. SUB: price FROM character.inventory.gold
-       f. OUT: 💰 [Name]: [old] - [price] = [new] gp
-       g. ADD: item TO character.inventory
-       h. OUT: "✓ Purchased [item_name]"
-       i. UPDATE: party_state
-       j. GOTO step 3
+       e. CALL: Encumbrance_Check WITH character
+       f. IF over_capacity: OUT "Cannot carry this item!" → GOTO step 3
+       g. SUB: price FROM character.inventory.gold
+       h. OUT: 💰 [Name]: [old] - [price] = [new] gp
+       i. ADD: item TO character.inventory
+       j. OUT: "✓ Purchased [item_name]"
+       k. CALL: Encumbrance_Check WITH character (update load status)
+       l. UPDATE: party_state
+       m. GOTO step 3
 
      CASE sell:
        a. PROMPT: "Which item from your inventory?"
@@ -408,11 +443,10 @@
      OUT: "Invalid rest type."
      RETURN
 
-4. CHECK: random_encounter during rest
-5. IF encounter_triggered THEN
-     OUT: "Your rest is interrupted!"
-     CALL: Combat_Initiation_Protocol WITH encounter
-     RETURN (rest failed)
+4. CALL: Random_Encounter_Protocol WITH encounter_context="rest", location_id=party_state.location.current
+5. IF encounter_occurred:
+     OUT: "⚠️ Rest interrupted by encounter!"
+     RETURN (rest failed, handle encounter first)
 
 6. RETURN to Exploration_Protocol
 ```
@@ -455,33 +489,41 @@
             x. IF continue_response == "no" THEN BREAK
 
 3. FOR character IN party_state.characters:
-     a. RESTORE Fixed_Resources (Automatic - DO NOT ASK):
-          Fighter: Action Surge, Second Wind
-          Warlock: All Pact Magic slots
-          Monk: Ki points
-          Bard: Bardic Inspiration (if Level >= 5)
-          Cleric: Channel Divinity
-          Druid: Wild Shape
+     a. RESTORE: fixed_resources (per PHB short rest - action surge, second wind, warlock slots, ki, channel divinity, wild shape, bardic inspiration if level 5+)
 
-     b. CHECK Variable_Resources (MUST ASK PLAYER):
+     b. CHECK: variable_resources (MUST ASK PLAYER for choices):
+          - Wizard/Land Druid: Arcane Recovery (recover spell slots up to CEIL(level/2) slot levels) → PROMPT which slots → ⛔ WAIT
+          - Sorcerer (level 20): Sorcerous Restoration (4 sorcery points) → PROMPT accept → ⛔ WAIT
+          - Other class features requiring player choice → PROMPT → ⛔ WAIT
 
-          IF class == "Wizard" OR class == "Land Druid":
-               CALC max_levels = CEIL(level / 2)
-               OUT: "🧙 [Feature Name]: You can recover up to [max_levels] levels of spell slots."
-               OUT: "Current Slots: [display_slots]"
-               PROMPT: "Which slots would you like to recover? (e.g., 'one 3rd level' or 'a 2nd and a 1st')"
-               ⛔ STOP: WAITING FOR INPUT (Do not proceed until player decides)
+     c. EXECUTE: recovery based on player input
+     d. UPDATE: character state
+     e. OUT: "✓ [Name]: Resources restored"
 
-          IF class == "Sorcerer" AND level >= 20:
-               OUT: "Sorcerous Restoration: Regain 4 sorcery points."
+4. FOR character IN party_state.characters:
+     a. CALC: ability_index = rest_count % 4
+     b. GET: class_resources = character.resources.class_resources
+     c. GET: class = character.identity.class
 
-     c. EXECUTE recovery based on player input from step 3b.
-     d. UPDATE character state.
-     e. OUT: "✓ [Name]: Class resources restored"
+     d. IF class_resources NOT empty OR class IN [Fighter, Barbarian, Monk, Ranger, Rogue, Paladin]:
+          SWITCH ability_index:
+            CASE 0: OUT: "Before resting, [Name] practices core combat techniques and reviews ability usage."
+            CASE 1: OUT: "[Name] mentally rehearses tactical maneuvers and special abilities."
+            CASE 2: OUT: "Before resting, [Name] runs through practice drills for class abilities."
+            CASE 3: OUT: "[Name] reviews recent combat experiences and refines techniques."
 
-4. OUT: "=== Short Rest Complete ==="
-5. UPDATE: party_state
-6. RETURN
+     e. ELSE IF character.spells exists:
+          SWITCH ability_index:
+            CASE 0: OUT: "Before resting, [Name] mentally rehearses somatic components for key spells."
+            CASE 1: OUT: "[Name] reviews arcane theory and spell patterns."
+            CASE 2: OUT: "Before resting, [Name] practices verbal components and gestures."
+            CASE 3: OUT: "[Name] meditates on spell structures and magical principles."
+
+5. CALL: Time_Tracking_Protocol WITH minutes_to_add=60
+6. OUT: "=== Short Rest Complete ==="
+7. CALL: Rest_Refresh_Protocol WITH rest_type="short"
+8. UPDATE: party_state
+9. RETURN
 ```
 
 ## PROTOCOL: Long_Rest_Protocol
@@ -489,87 +531,91 @@
 **TRIGGER**: Long rest initiated
 **GUARD**: none
 
+**IMMUTABLE OUTPUT RULES**:
+1. **MANDATORY ABILITY REVIEW**: You MUST include a "🧠 SPELL & ABILITY REVIEW" section.
+2. **ROTATION**: For each character, select 1-2 specific abilities/spells to narrate them practicing/memorizing. Do not list their entire sheet.
+3. **FLAVOR**: Describe *how* they prepare (e.g., "Wizard memorizes gestures," "Fighter drills footwork").
+
 **PROCEDURE**:
 ```
-1. OUT: "=== Long Rest (8 hours) ==="
-2. SET: starvation_list = []
-3. SET: dehydration_list = []
+1. OUT: "=== ⛺ Long Rest (8 hours) ==="
 
-4. FOR character IN party_state.characters:
+2. MECHANICAL RESTORATION:
+   FOR character IN party_state.characters:
      a. SET: character.hp_current = character.hp_max
-     b. RESTORE: character.hit_dice_remaining = max(1, total/2)
+     b. RESTORE: character.hit_dice_remaining = min(total, current + total/2)
      c. RESTORE: ALL spell slots to max
-     d. RESTORE resources based on class:
-          Fighter: action_surge, second_wind, superiority_dice (if Battle Master)
-          Monk: ki_points = character.level
-          Barbarian: rages = level_based (2/3/3/4/4/5/5/6/6/unlimited at 20)
-          Bard: bardic_inspiration = CHA_mod
-          Cleric: channel_divinity = 1 + (level>=6) + (level>=18)
-          Druid: wild_shape uses = 2
-          Paladin: lay_on_hands = level × 5
-          Sorcerer: sorcery_points = character.level
-          Warlock: spell slots, mystic_arcanum
-          Wizard: spell slots, arcane_recovery_available = true
+     d. RESTORE: class resources (per PHB long rest rules - action surge, ki, rages, channel divinity, wild shape, sorcery points, etc.)
      e. CLEAR: exhaustion level (reduce by 1)
-     f. SILENTLY CHECK provisions:
-          IF provisions > 0: DEC provisions by 1; SET days_without_food = 0
-          ELSE: INC days_without_food; IF > (3 + CON_mod): ADD 1 exhaustion; ADD name TO starvation_list
-     g. SILENTLY CHECK water:
-          IF water > 0: DEC water by 1
-          ELSE: ADD 1 exhaustion; ADD name TO dehydration_list
+     f. CONSUME: 1 ration (DEC provisions by 1; IF provisions <= 0: ADD 1 exhaustion, SET starvation warning)
+     g. CONSUME: 1 water (DEC water by 1; IF water <= 0: ADD 1 exhaustion, SET dehydration warning)
 
-5. IF starvation_list empty AND dehydration_list empty:
-     OUT: "✓ Party fully rested. Rations and water consumed."
-6. ELSE:
+3. IF starvation or dehydration warnings triggered:
      OUT: "⚠️ RESOURCES CRITICAL:"
-     IF starvation_list: OUT: "- Starving: [starvation_list]"
-     IF dehydration_list: OUT: "- Dehydrated: [dehydration_list]"
+     IF starvation: OUT: "- Characters are starving (no provisions)"
+     IF dehydration: OUT: "- Characters are dehydrated (no water)"
+   ELSE:
+     OUT: "✓ Party fully rested. Rations and water consumed."
 
-7. FOR character IN party_state.characters:
-     IF character.spells exists AND character.class IN prepared_casters [Wizard, Cleric, Druid, Paladin, Ranger]:
-       a. CALC: max_prepared = spellcasting_ability_modifier + level
-          (Wizard: INT_mod + level, Cleric/Druid: WIS_mod + level, Paladin: CHA_mod + level/2, Ranger: WIS_mod + level/2)
-       b. GET: current_prepared_spells = FILTER(character.spells.spells_known WHERE prepared == true)
-       c. OUT: "📜 [character.name] Spell Preparation"
-       d. OUT: "Can prepare [max_prepared] spells"
-       e. OUT: "Current prepared: [list current_prepared_spells]"
-       f. PROMPT: "Change prepared spells? (yes/no)"
-       g. ⛔ WAIT: change_preparation
-       h. IF change_preparation == "yes":
-            i. SHOW: all spells in character.spells.spells_known (excluding cantrips)
-            ii. OUT: "Choose up to [max_prepared] spells to prepare (comma-separated):"
-            iii. ⛔ WAIT: new_prepared_list
-            iv. VALIDATE:
-                - count <= max_prepared
-                - all spells IN spells_known
-                - all spells level > 0 (cantrips always prepared, not counted)
-            v. IF validation_failed:
-                 OUT: "⚠️ Invalid preparation (too many or unknown spells)"
-                 RETURN to step 7h.ii
-            vi. FOR spell IN character.spells.spells_known:
-                  IF spell.level > 0:
-                    SET spell.prepared = (spell IN new_prepared_list)
-            vii. OUT: "✓ [character.name] prepared [count] spells"
-       i. ELSE:
-            OUT: "✓ [character.name] keeping current spell preparation"
-     ELSE IF character.spells exists AND character.class IN spontaneous_casters [Bard, Sorcerer, Warlock]:
-       OUT: "✓ [character.name]'s spells ready (spontaneous caster - all spells always prepared)"
+4. PREPARED CASTERS (Wizard/Cleric/Druid/Paladin/Ranger):
+   FOR character IN party_state.characters WHERE character.class IN prepared_casters:
+     a. OUT: "📜 SPELL PREPARATION"
+     b. CALC: max_prepared = spellcasting_ability_modifier + level
+        (Wizard: INT_mod + level, Cleric/Druid: WIS_mod + level, Paladin: CHA_mod + level/2, Ranger: WIS_mod + level/2)
+     c. GET: current_prepared = FILTER(character.spells.spells_known WHERE prepared == true)
+     d. OUT: "[character.name]: Can prepare [max_prepared] spells."
+     e. OUT: "Current prepared: [list current_prepared]"
+     f. PROMPT: "Change prepared spells? (yes/no)"
+     g. ⛔ WAIT: change_preparation
+     h. IF change_preparation == "yes":
+          i. SHOW: all spells in spells_known (excluding cantrips)
+          ii. OUT: "Choose up to [max_prepared] spells (comma-separated):"
+          iii. ⛔ WAIT: new_prepared_list
+          iv. VALIDATE: count <= max_prepared AND all spells IN spells_known
+          v. IF validation_failed:
+               OUT: "⚠️ Invalid preparation (too many or unknown spells)"
+               RETURN to step 4h.ii
+          vi. UPDATE: Set prepared flag for selected spells, clear others
+          vii. OUT: "✓ [character.name] prepared [count] spells"
+     i. ELSE:
+          OUT: "✓ [character.name] keeping current spell preparation"
 
-8. INC: party_state.world_state.time_elapsed by 1 day
-9. OUT: "=== Long Rest Complete ==="
-10. UPDATE: party_state
-11. RETURN
+5. 🧠 SPELL & ABILITY REVIEW (MANDATORY):
+   OUT: "━━━ 🧠 ABILITY REFRESH ━━━"
+
+   FOR character IN party_state.characters:
+     a. PICK: 1-2 key features from:
+          - Spellcasters: Select 1-2 specific spells they know
+          - Martials: Select 1-2 class features (Action Surge, Rage, Ki, Sneak Attack, etc.)
+          - Mixed: Balance between spells and abilities
+
+     b. NARRATE: The character reviewing/practicing these specific traits.
+        Examples:
+          - "Gandros recites the verbal component for Fireball, tracing the somatic gestures in the air."
+          - "Aldric drills the footwork for his Action Surge combo, practicing quick weapon transitions."
+          - "Mira meditates on her Favored Enemy knowledge, reviewing goblin tactics and weaknesses."
+          - "Thokk practices entering a controlled rage, focusing his anger into precise strikes."
+
+     c. VARY: Do not use the same abilities every rest. Rotate through character capabilities.
+
+6. FINALIZE:
+   CALL: Time_Tracking_Protocol WITH minutes_to_add=480
+   OUT: "=== Long Rest Complete ==="
+   CALL: Rest_Refresh_Protocol WITH rest_type="long"
+   UPDATE: party_state
+   RETURN
 ```
 
 ## PROTOCOL: Light_Source_Tracking
 
 **TRIGGER**: Time passes
+**INPUT**: minutes_elapsed
 **GUARD**: none
 
 **PROCEDURE**:
 ```
 1. FOR source IN character.active_light_sources:
-     a. DEC: source.remaining_duration by time_elapsed
+     a. DEC: source.remaining_duration by minutes_elapsed
      b. IF source.remaining_duration <= 0:
           REMOVE: source FROM active_light_sources
           OUT: "🌑 [source.type] has burned out! You are in darkness."

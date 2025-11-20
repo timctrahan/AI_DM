@@ -116,7 +116,29 @@
 14. OUT: "✓ [Name] is now level [new_level]!"
 15. SHOW: updated character sheet summary
 
-16. ⚠️ CHECKPOINT: Level-up complete
+16. ⚠️ CHECKPOINT: Level-up integrity validation
+    a. VERIFY: character.level == new_level
+    b. VERIFY: character.proficiency_bonus matches proficiency_table[new_level]
+    c. VERIFY: character.hit_dice_total == new_level
+    d. VERIFY: character.hp_current == character.hp_max
+    e. IF spellcaster:
+         VERIFY: spell_slots match class_spell_progression[class][new_level]
+         VERIFY: spells_known count valid for class/level
+         VERIFY: all spells have {name, level, prepared/known} fields
+    f. IF validation_failed:
+         OUT: "⚠️ CRITICAL: Level-up integrity check failed"
+         OUT: "Violations detected:"
+         FOR EACH failed_check:
+           OUT: "  - [check_name]: Expected [expected], Got [actual]"
+         PROMPT: "ROLLBACK to level [previous_level]? (yes/no)"
+         ⛔ WAIT: rollback_choice
+         IF rollback_choice == "yes":
+           ROLLBACK: character state to pre-level-up snapshot
+           OUT: "✓ Rolled back to level [previous_level]"
+           RETURN (level-up aborted)
+         ELSE:
+           OUT: "⚠️ Proceeding with invalid state - manual correction needed"
+
 17. UPDATE: party_state
 18. RETURN
 ```
@@ -181,6 +203,36 @@
 ---
 
 # SECTION 9: QUEST & LOOT MANAGEMENT
+
+## PROTOCOL: Quest_Progress_Update_Protocol
+
+**TRIGGER**: Quest objective completed during gameplay
+**INPUT**: quest_id, objective_id, progress_description
+**GUARD**: quest_id IN party_state.campaign_state.quests_active
+
+**PROCEDURE**:
+```
+1. GET: quest FROM campaign.quests WHERE quest.quest_id = quest_id
+2. IF quest NOT found: OUT "Quest not found" → RETURN
+
+3. IF objective_id PROVIDED:
+     FIND: objective IN quest.objectives WHERE objective.objective_id = objective_id
+     SET: objective.completed = true
+     OUT: "✓ Quest Objective Complete: [objective.description]"
+
+4. IF progress_description PROVIDED:
+     SET: quest.progress = progress_description
+     OUT: "📝 Quest Progress Updated: [progress_description]"
+
+5. CHECK: all_objectives_complete = ALL(quest.objectives.completed == true)
+6. IF all_objectives_complete:
+     OUT: "⚠️ All objectives complete! Return to [quest.quest_giver] to complete quest."
+
+7. UPDATE: party_state
+8. RETURN
+```
+
+⚠️ **SENTINEL**: Always update quest.progress when investigation reveals quest-relevant information
 
 ## PROTOCOL: Quest_Accept_Protocol
 
@@ -270,6 +322,8 @@
          a. PROMPT: "Who takes [item_name]? (character name)"
          b. ⛔ WAIT: recipient
          c. CHECK: recipient IN party
+         d. CALL: Encumbrance_Check WITH recipient BEFORE adding item
+         e. IF over_capacity: OUT "⚠️ [recipient] cannot carry this!" → PROMPT for different recipient → GOTO step 4.a
          d. ADD: item TO recipient.inventory
          e. OUT: "✓ [Recipient] received [item_name]"
 
@@ -328,6 +382,60 @@
 2. UPDATE: world_state
 3. RETURN
 ```
+
+## PROTOCOL: Player_Action_Reputation_Protocol
+
+**TRIGGER**: Player performs reputation-affecting action
+**INPUT**: action_type (heroic|theft|murder|betrayal|charity|intimidation), witnesses_present, location_id
+**GUARD**: none
+
+**PROCEDURE**:
+```
+1. DETERMINE reputation_impacts based on action_type:
+
+   CASE "heroic" (saving life, defeating evil):
+     SET: regional_fame_gain = +5
+     SET: witness_reputation_gain = +2
+     OUT: "✨ Heroic action witnessed!"
+
+   CASE "theft" (stealing, pickpocketing):
+     SET: regional_infamy_gain = +10
+     SET: witness_reputation_loss = -3
+     OUT: "👁️ Witnesses saw the theft!"
+
+   CASE "murder" (killing non-hostile NPC):
+     SET: regional_infamy_gain = +25
+     SET: witness_reputation_loss = -5
+     OUT: "💀 Murder witnessed - authorities alerted!"
+
+   CASE "betrayal" (breaking trust, lying to ally):
+     SET: target_reputation_loss = -4
+     OUT: "🗡️ Trust broken!"
+
+   CASE "charity" (giving gold/items to poor):
+     SET: regional_fame_gain = +3
+     SET: witness_reputation_gain = +1
+     OUT: "💝 Generous act noticed!"
+
+   CASE "intimidation" (threatening NPCs):
+     SET: regional_infamy_gain = +5
+     SET: witness_reputation_loss = -2
+     OUT: "😨 Intimidation creates fear!"
+
+2. IF witnesses_present:
+     FOR witness IN witnesses_present:
+       CALL: Track_Reputation_Change WITH type="npc", target_id=witness.npc_id, change_value=[calculated], reason="Witnessed [action_type]"
+
+3. IF location_id PROVIDED:
+     GET: region_id FROM campaign.locations[location_id].region
+     IF regional_fame_gain: ADD regional_fame_gain TO party_state.reputation.regions[region_id].fame
+     IF regional_infamy_gain: ADD regional_infamy_gain TO party_state.reputation.regions[region_id].infamy
+
+4. UPDATE: party_state
+5. RETURN
+```
+
+⚠️ **SENTINEL**: Player actions have consequences - track reputation changes
 
 ## PROTOCOL: Track_Reputation_Change
 

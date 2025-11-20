@@ -21,7 +21,11 @@
 
 10-11. OUT "Initiative Order:" → SHOW list
 
-12. CALL Combat_Round_Protocol
+12. OUT: "---"
+13. PROMPT: "You have the initiative. What is your opening move?"
+14. ⛔ STOP AND WAIT for player action
+
+15. CALL Combat_Round_Protocol
 ```
 
 ## PROTOCOL: Combat_Round_Protocol
@@ -31,7 +35,9 @@
 
 **PROCEDURE**:
 ```
-1. OUT: "--- ⚔️ COMBAT STATUS: ROUND [round] ---"
+1. RESET: all combatants reaction_available = true
+
+2. OUT: "--- ⚔️ COMBAT STATUS: ROUND [round] ---"
    OUT: "ENEMIES:"
    FOR enemy IN initiative_order WHERE enemy.is_enemy AND enemy.hp > 0:
      CALC: status = (enemy.hp/enemy.max_hp > 0.7) ? "Healthy" : (> 0.3) ? "Bloody" : "Critical"
@@ -39,18 +45,24 @@
 
    OUT: "ALLIES:"
    FOR ally IN initiative_order WHERE ally.is_player AND ally.hp > 0:
-     OUT: "- [ally.name]: [ally.hp]/[ally.max_hp] HP" + (conditions ? " | [conditions]" : "")
+     GET: spell_slots_display = ""
+     IF ally.spells EXISTS:
+       SET: spell_slots_display = " | Slots: "
+       FOR level IN [1-9]:
+         IF ally.spell_slots.level_[level].max > 0:
+           spell_slots_display += "[level]:[current]/[max] "
+     OUT: "- [ally.name] (AC [ally.armor_class]): [ally.hp]/[ally.max_hp] HP[spell_slots_display]" + (conditions ? " | [conditions]" : "")
    OUT: "---"
 
-2. FOR combatant IN initiative_order:
+3. FOR combatant IN initiative_order:
      SKIP if hp <= 0
      SET current_turn = combatant
      OUT "[Name]'s turn"
      IF player: CALL Player_Combat_Turn_Protocol; ELSE: CALL Enemy_Combat_Turn_Protocol
      CHECK combat_end → IF all_defeated: CALL Combat_End_Protocol → RETURN
 
-3. INC combat_state.round
-4. RETURN to Game_Loop
+4. INC combat_state.round
+5. RETURN to Game_Loop
 ```
 
 ## PROTOCOL: Player_Combat_Turn_Protocol
@@ -88,8 +100,13 @@
 **PROCEDURE**:
 ```
 1. CALC: attack_bonus = attacker.attack_bonus_for_weapon
-2. ROLL: d20
-3. APPLY: advantage/disadvantage if applicable
+
+2. CHECK: ammo (if ranged weapon) → IF out of ammo: OUT "❌ Out of [ammo_type]!" RETURN → DEC ammo.count → OUT "🏹 Used 1 [ammo_type] ([remaining])"
+
+3. CHECK: lighting → IF darkness AND NOT darkvision: SET disadvantage, OUT "⚠️ Attacking in darkness - Disadvantage!"
+
+3. ROLL: d20
+4. APPLY: advantage/disadvantage if applicable
 4. STORE: natural_roll = d20_result
 5. CALC: total = d20 + attack_bonus
 
@@ -102,27 +119,20 @@
 
 9. IF natural_roll == 20:
      OUT: "→ CRITICAL HIT!"
-     a. CALC: damage_dice FROM weapon
-     b. ROLL: damage_dice TWICE
-     c. ADD: all dice results together
-     d. ADD: ability_modifier + other_bonuses
-     e. OUT: 💥 Critical Damage: [total] [type]
-     f. SUB: damage FROM target.hp_current
-     g. OUT: ❤️ [Target]: [new_hp]/[max_hp] HP
-     h. IF target.hp_current <= 0 THEN
-          CALL: Handle_Creature_Death WITH target
-     i. GOTO step 15
+     ROLL: damage_dice TWICE + ability_modifier
+     OUT: 💥 Critical Damage: [total] [type]
+     SUB: damage FROM target.hp_current
+     OUT: ❤️ [Target]: [new_hp]/[max_hp] HP
+     IF target.hp_current <= 0: CALL Handle_Creature_Death
+     GOTO step 15
 
 10. IF total >= target.ac:
-      a. OUT: "→ HIT!"
-      b. CALC: damage_dice FROM weapon
-      c. ROLL: damage_dice
-      d. ADD: ability_modifier + other_bonuses
-      e. OUT: 💥 Damage: [total] [type]
-      f. SUB: damage FROM target.hp_current
-      g. OUT: ❤️ [Target]: [new_hp]/[max_hp] HP
-      h. IF target.hp_current <= 0 THEN
-           CALL: Handle_Creature_Death WITH target
+      OUT: "→ HIT!"
+      ROLL: damage_dice + ability_modifier
+      OUT: 💥 Damage: [total] [type]
+      SUB: damage FROM target.hp_current
+      OUT: ❤️ [Target]: [new_hp]/[max_hp] HP
+      IF target.hp_current <= 0: CALL Handle_Creature_Death
 
 11. ELSE:
       OUT: "→ MISS!"
@@ -229,6 +239,47 @@
 9. RETURN to Combat_Round_Protocol
 ```
 
+## PROTOCOL: Opportunity_Attack_Protocol
+
+**TRIGGER**: Enemy/ally moves out of melee reach without Disengage
+**INPUT**: moving_creature, threatening_creature
+**GUARD**: threatening_creature.reaction_available AND threatening_creature IN melee_range
+
+**PROCEDURE**:
+```
+1. CHECK: moving_creature action_this_turn
+2. IF action_this_turn == "disengage":
+     OUT: "[Moving_creature] disengaged safely - no opportunity attack"
+     RETURN
+
+3. IF NOT threatening_creature.reaction_available:
+     OUT: "[Threatening_creature] already used reaction this round"
+     RETURN
+
+4. IF threatening_creature.is_player:
+     OUT: "⚔️ Opportunity Attack Available!"
+     OUT: "[Moving_creature] is leaving your reach."
+     PROMPT: "Take opportunity attack? (yes/no)"
+     ⛔ WAIT: choice
+
+     IF choice != "yes":
+       OUT: "✓ Opportunity attack declined"
+       RETURN
+
+5. ELSE IF threatening_creature.is_enemy:
+     OUT: "⚔️ [Enemy] takes opportunity attack against [moving_creature]!"
+
+6. SET: threatening_creature.reaction_available = false
+7. OUT: "🛡️ Reaction used - [threatening_creature] uses opportunity attack"
+
+8. CALL: Attack_Action_Protocol WITH attacker=threatening_creature, target=moving_creature, weapon=threatening_creature.equipped_weapon
+
+9. UPDATE: combat_state
+10. RETURN
+```
+
+⚠️ **SENTINEL**: Opportunity attacks consume reactions, only one per round per creature
+
 ## PROTOCOL: Combat_End_Protocol
 
 **TRIGGER**: Combat victory conditions met
@@ -255,6 +306,7 @@
      CALL: Loot_Distribution_Protocol WITH loot
 
 10. CLEAR: temporary combat conditions
+11. RESET: all character.reaction_available = true
 11. RESET: combat_state
 12. UPDATE: party_state
 
@@ -288,7 +340,7 @@
 
 4. GET spell.targets
    SWITCH targeting:
-     area_effect: PROMPT location → ⛔ WAIT → CALC affected → OUT "Targets: [list]" → PROMPT confirm
+     area_effect: PROMPT location → ⛔ WAIT → CALC affected → OUT "Targets: [list]" → PROMPT confirm → ⛔ WAIT
      single/multi: PROMPT selection → ⛔ WAIT → VALIDATE range/count
    SET spell_targets
 

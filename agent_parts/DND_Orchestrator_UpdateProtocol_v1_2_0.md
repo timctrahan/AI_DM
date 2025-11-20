@@ -1,4 +1,4 @@
-# DND Orchestrator UpdateProtocol v1.0.0
+# DND Orchestrator UpdateProtocol v1.2.0
 **Generic orchestrator governing ALL updates to D&D 5E orchestrator files**
 
 **Purpose**: Prevent data loss, bloat, and drift when modifying D&D orchestrator files
@@ -97,18 +97,18 @@ grep -c "^### PROTOCOL:" ../CORE_DND5E_AGENT_ORCHESTRATOR_v*.md  # Total protoco
 # Assembled total protocols: _____
 ```
 
-### Step 2: Define Target (ALWAYS)
+### Step 2: Define Scope (ALWAYS)
 
 **User specifies**:
 - What to add/remove/modify
-- Target size (if adding/removing)
 - Which protocols affected
+- Target size (ONLY if user explicitly provides one)
 
-**You calculate**:
-- Current: ___ KB
-- Target: ___ KB  
-- Delta: ±___ KB
-- Per-change budget: ___ bytes
+**You document**:
+- Current size: ___ KB (baseline for change detection)
+- Expected change type: addition/removal/modification
+- Protocols affected: [list]
+- Functional goal: [what this achieves]
 
 ### Step 3: Use str_replace ONLY (ALWAYS)
 
@@ -192,12 +192,7 @@ grep -c "^### PROTOCOL:" ../CORE_DND5E_AGENT_ORCHESTRATOR_v*.md  # Must match ex
 - Compact sentinels: `⚠️ SENTINEL: [brief]` NOT verbose explanations
 - NO human explanations: Instructions only
 
-**Size limits per addition**:
-- Section 0: 2KB max
-- Meta-protocols: 3KB max
-- Guard per protocol: 50 bytes max
-- Stop marker: 20 bytes max
-- Sentinel: 50 bytes max
+**Efficiency principle**: Use compact formats when they achieve the same functional outcome, but NEVER sacrifice clarity or functionality to hit arbitrary size targets
 
 ### Type B: Removing Content
 
@@ -243,70 +238,60 @@ grep -c "^### PROTOCOL:" ../CORE_DND5E_AGENT_ORCHESTRATOR_v*.md  # Must match ex
 
 ---
 
-## SIZE MANAGEMENT
+## CHANGE DETECTION (NOT SIZE ENFORCEMENT)
 
-### Part Size Targets
+**CRITICAL PRINCIPLE**: Files must be as large as they need to be for functionality. Measurement is for detecting unexpected changes (data loss, accidental bloat), NOT for enforcing arbitrary size targets.
 
-| Part | Current Size | Max Recommended |
-|------|-------------|-----------------|
-| Part 1 | ~8KB | 10KB |
-| Part 2 | ~6KB | 8KB |
-| Part 3 | ~10KB | 12KB |
-| Part 4 | ~7KB | 9KB |
-| Part 5 | ~9KB | 11KB |
-| Part 6 | ~4KB | 6KB |
-| **Assembled** | **~45KB** | **55KB** |
+### Purpose of Measurement
+
+**Measure to detect**:
+- ✅ Data loss (file shrunk unexpectedly)
+- ✅ Content duplication (file grew unexpectedly)
+- ✅ Protocol deletion (count dropped unexpectedly)
+- ✅ Accidental bloat (verbose formatting crept in)
+
+**DO NOT measure to**:
+- ❌ Enforce arbitrary "max recommended" sizes
+- ❌ Hit predetermined size targets
+- ❌ Reduce size for the sake of reduction
+- ❌ Compromise functionality for smaller files
 
 ### When Adding Content
 
-**Calculate budget (for PART and ASSEMBLED)**:
+**Track functional changes**:
 ```
-Part X target increase: X KB
-Components: [list with individual budgets]
-Part budgeted: [sum]
-Expected assembled increase: ~X KB (may differ due to concatenation)
-Safety margin: [10% of total]
+Part 3 baseline: 10.2KB, 15 protocols
+Added provisions protocol: +2.1KB, 16 protocols ✓
+Added foraging protocol: +1.4KB, 17 protocols ✓
+Part 3 new size: 13.7KB, 17 protocols ✓
+
+Functional goal achieved: Players can now forage and manage provisions
+Size increase justified: Two complete new protocols with full procedures
 ```
 
-**Track progress**:
-```
-Part 3 baseline: 10.2KB
-Added provisions protocol: +2.1KB (budget 2KB) ✓
-Added foraging protocol: +1.4KB (budget 1.5KB) ✓
-Part 3 new size: 13.7KB ✓
-
-Assembled baseline: 45.6KB
-After assembly: 49.2KB (+3.6KB) ✓
-```
-
-**Abort if**:
-- Part size >20% over individual budget
-- Part exceeds max recommended size
-- Assembled >10% over total budget
-- File size growing unexpectedly
+**Alert if**:
+- File size changed but protocol count didn't (unexpected)
+- Added 1 protocol but file grew by 10KB (possible duplication)
+- File size didn't change but protocol count increased (content lost)
 
 ### When Removing Content
 
-**Calculate target**:
+**Track what was removed and why**:
 ```
-Current: 59KB
-Target: 43KB
-To remove: 16KB
+Current: 59KB, 44 protocols
+Goal: Remove verbose human explanations, NOT protocols
+Removed explanatory text: -1.2KB, 44 protocols ✓
+Compacted verbose guards: -1.6KB, 44 protocols ✓
+Final: 56.2KB, 44 protocols ✓
+
+Functional goal: Same functionality, less bloat
+All protocols preserved: Yes ✓
 ```
 
-**Track progress**:
-```
-Removed EXIT_CONDITIONS: -0.9KB (target 1KB) ✓
-Compacted guards: -1.6KB (target 1.5KB) ✓
-Compacted stops: -0.5KB (target 0.5KB) ✓
-...
-Total removed: 15.8KB (target 16KB) ✓
-```
-
-**Abort if**:
-- Removed >10% more than target
-- Protocol count decreased unexpectedly
-- Critical content disappeared
+**Alert if**:
+- Protocol count dropped unexpectedly
+- Removed >50% more content than expected (possible collateral damage)
+- Critical content disappeared (checkpoints, sentinels, procedures)
 
 ---
 
@@ -327,11 +312,11 @@ grep -c "^### PROTOCOL:" DND_ORCH_PARTX_*.md
 ```bash
 # Part final size
 wc -c DND_ORCH_PARTX_*.md
-# Within ±10% of target?
+# Changed as expected based on modifications?
 
 # Assembled final size
 wc -c ../CORE_DND5E_AGENT_ORCHESTRATOR_v*.md
-# Within ±10% of target? (~45KB baseline)
+# Changed as expected? (No arbitrary target - just detect unexpected changes)
 
 # Assembled line count
 wc -l ../CORE_DND5E_AGENT_ORCHESTRATOR_v*.md
@@ -339,7 +324,7 @@ wc -l ../CORE_DND5E_AGENT_ORCHESTRATOR_v*.md
 
 # All protocols present in assembled
 grep "^### PROTOCOL:" ../CORE_DND5E_AGENT_ORCHESTRATOR_v*.md | wc -l
-# Matches expected? (40+ protocols)
+# Matches expected? (Should match baseline unless protocols added/removed intentionally)
 
 # Version increment
 cat version.json | grep current_version
@@ -422,21 +407,25 @@ GUARD: state_valid AND prerequisites_met
 
 **STOP IMMEDIATELY if**:
 
-1. **Size delta >20% unexpected**
-   - Added 2KB, expected 500B → ABORT
-   - Removed 5KB, expected 1KB → ABORT
+1. **Size changed unexpectedly**
+   - Added simple guard, file grew by 2KB → ABORT (possible duplication)
+   - Removed one explanation, file shrunk by 5KB → ABORT (collateral damage)
+   - Expected change direction doesn't match actual (added content but file shrunk)
 
 2. **Protocol count changed unexpectedly**
    - Started with 40, now 35, didn't intend to remove → ABORT
+   - Started with 40, now 40, but added new protocol → ABORT (content lost)
 
 3. **Critical content disappeared**
    - Checkpoint missing → ABORT
-   - Section 0 gone → ABORT
+   - Section 0 gone (if v4+) → ABORT
    - Protocols missing → ABORT
+   - Sentinel markers gone → ABORT
 
-4. **File shrunk dramatically**
-   - Lost >20% of file → ABORT
-   - Line count dropped >30% → ABORT
+4. **File changed dramatically without explanation**
+   - Lost >20% of file size unexpectedly → ABORT
+   - Line count dropped >30% unexpectedly → ABORT
+   - File grew >50% unexpectedly → ABORT
 
 **When aborting**:
 1. Tell user: "I made an error: [description]"
@@ -452,53 +441,65 @@ GUARD: state_valid AND prerequisites_met
 EVERY update MUST follow (MODULAR):
 
 1. Identify which part to edit (PART1-6 via mapping table)
-2. Record baseline (part size, assembled size, protocols)
-3. Define target (what changing, size budget for part + assembled)
+2. Record baseline (part size, assembled size, protocols) - for change detection
+3. Define scope (what changing, functional goal, protocols affected)
 4. Read section to modify in PART file
 5. Use str_replace ONLY on PART file
-6. Measure PART after change (wc -c)
-7. Verify expected delta in PART
-8. Verify protocols intact in PART
+6. Measure PART after change (wc -c) - detect unexpected changes
+7. Verify change direction matches expectation (grew/shrunk as expected)
+8. Verify protocols intact in PART (count should match unless intentionally changed)
 9. Repeat steps 4-8 for each change to parts
 10. Run assembly: python assemble_orchestrator.py
-11. Measure ASSEMBLED output (size, lines, protocols)
+11. Measure ASSEMBLED output (size, lines, protocols) - detect unexpected changes
 12. Verify version increment (version.json)
-13. Verify expected assembled delta
-14. Final verification (all checklists)
-15. Report results to user
+13. Verify assembled changed as expected (direction and rough magnitude)
+14. Final verification (all checklists - functionality, not size targets)
+15. Report results to user (functional goals achieved, protocols preserved)
 ```
 
 **Remember**:
-- Measure constantly (part AND assembled)
+- Measure for change detection, NOT size targets
 - Always assemble after part edits
 - Verify version increment matches files changed
-- Compact over verbose
+- Compact over verbose (when functionally equivalent)
 - Instructions not explanations
 - str_replace not create_file
-- Abort if unexpected
+- Abort if unexpected changes detected
+- Functionality ALWAYS takes priority over file size
 
 ---
 
 ## VERSION HISTORY
 
-**v1.1.0** (Current)
+**v1.2.0** (Current - CRITICAL CORRECTION)
+- **REMOVED arbitrary size targets** - Files must be as large as needed for functionality
+- Reframed "SIZE MANAGEMENT" → "CHANGE DETECTION" - measure for detecting unexpected changes, NOT enforcing targets
+- Removed "Part Size Targets" table with arbitrary max sizes
+- Removed "Abort if Part exceeds max recommended size" violations
+- Updated "Step 2: Define Target" → "Define Scope" - functional goals, not size budgets
+- Clarified measurement purpose: detect data loss/duplication, NOT hit size targets
+- Added critical principle: **"Functionality ALWAYS takes priority over file size"**
+- Updated verification checklists to focus on functional integrity, not arbitrary limits
+- Efficiency principle: compact when functionally equivalent, NEVER sacrifice clarity for size
+
+**v1.1.0** (DEPRECATED - contained harmful size targets)
 - Added modular orchestrator architecture section
 - Added 6-part structure documentation
 - Added section mapping table (which part to edit)
 - Updated workflow to include assembly step
 - Added dual measurement (part + assembled)
 - Added version.json tracking verification
-- Updated size management for part sizes
+- ❌ Added harmful arbitrary size targets (corrected in v1.2.0)
 - Updated verification checklist for modular workflow
 
 **v1.0.0**
 - Initial release
 - Catastrophic error prevention
 - Mandatory workflow
-- Size management
+- Size management (later corrected in v1.2.0)
 - Content rules
 - Emergency abort conditions
 
 ---
 
-**DND Orchestrator UpdateProtocol v1.1.0: Preventing catastrophic modifications through measurement and discipline in modular orchestrator architecture.**
+**DND Orchestrator UpdateProtocol v1.2.0: Preventing catastrophic modifications through measurement and discipline. Functionality over arbitrary size constraints.**

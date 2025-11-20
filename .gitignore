@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Automated part file backups
+agent_parts/.previous_versions/
+*.zip

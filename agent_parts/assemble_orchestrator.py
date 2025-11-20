@@ -9,6 +9,7 @@ import os
 import sys
 import json
 from datetime import datetime
+import zipfile
 
 VERSION_FILE = "version.json"
 
@@ -78,6 +79,35 @@ def get_version_string(version):
     """Convert version dict to string format"""
     return f"v{version['major']}.{version['minor']}.{version['patch']}"
 
+def update_part1_version(content, version_string):
+    """Update Part 1 header version numbers to match assembled version"""
+    import re
+
+    # Update version in line 1: "# D&D 5E ORCHESTRATOR vX.Y LEAN" → "v{version_string}"
+    content = re.sub(
+        r"# D&D 5E ORCHESTRATOR v\d+\.\d+(?:\.\d+)? LEAN",
+        f"# D&D 5E ORCHESTRATOR {version_string} LEAN",
+        content
+    )
+
+    # Update version in line 2: "**Version**: X.Y Lean" → "{version_no_v} Lean"
+    version_no_v = version_string.lstrip('v')
+    content = re.sub(
+        r"(\*\*Version\*\*:\s+)\d+\.\d+(?:\.\d+)?(\s+Lean)",
+        f"\\g<1>{version_no_v}\\g<2>",
+        content
+    )
+
+    # Update date in line 2: "**Updated**: MMM DD, YYYY"
+    today = datetime.now().strftime("%b %d, %Y")
+    content = re.sub(
+        r"\*\*Updated\*\*:\s+\w+\s+\d{1,2},\s+\d{4}",
+        f"**Updated**: {today}",
+        content
+    )
+
+    return content
+
 def assemble_orchestrator(output_file=None):
     """Assemble orchestrator from parts with dynamic versioning"""
 
@@ -132,6 +162,11 @@ def assemble_orchestrator(output_file=None):
             print(f"  Adding Part {i}: {part}")
             with open(part, "r", encoding="utf-8") as f:
                 content = f.read()
+
+                # Update Part 1 version header to match assembled version
+                if i == 1:  # Part 1
+                    content = update_part1_version(content, version_string)
+
                 output.write(content)
 
                 # Add separator between parts (not after last part)
@@ -153,6 +188,26 @@ def assemble_orchestrator(output_file=None):
         print("  WARNING: File larger than expected (expected ~43KB)")
     else:
         print("  Size looks good")
+
+    # Backup part files to versioned archive
+    try:
+        backup_dir = ".previous_versions"
+        if not os.path.exists(backup_dir):
+            os.makedirs(backup_dir, exist_ok=True)
+
+        zip_filename = f"{version_string}.zip"
+        zip_path = os.path.join(backup_dir, zip_filename)
+
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+            for part in parts:
+                zf.write(part)
+
+        zip_size = os.path.getsize(zip_path)
+        print(f"  Backup: {zip_path} ({zip_size/1024:.1f} KB)")
+
+    except Exception as e:
+        print(f"  WARNING: Backup creation failed: {e}")
+        # Continue execution - assembly succeeded, backup is optional
 
     # Update version.json
     version_data["current_version"] = new_version
