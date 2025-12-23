@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(python assemble_protocol_library.py:*)",
+      "Bash(python:*)",
+      "Bash(iconv:*)",
+      "Bash(dir /s /b *.md)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

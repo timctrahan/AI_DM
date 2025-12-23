@@ -1,0 +1,21 @@
+{
+  "current_version": {
+    "major": 2,
+    "minor": 0,
+    "patch": 1
+  },
+  "last_change_date": "2025-12-19T23:23:19.374072",
+  "output_filename": "PROTOCOL_LIBRARY_v2.0.1.md",
+  "part_files": [
+    "PART1_Session_Management.md",
+    "PART2_Game_Loop.md",
+    "PART3_Combat.md",
+    "PART4_Progression.md",
+    "PART5_Utilities.md"
+  ],
+  "versioning_rules": {
+    "patch": "0-1 files changed",
+    "minor": "2-3 files changed",
+    "major": "4-5 files changed"
+  }
+}

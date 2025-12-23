@@ -2,9 +2,9 @@
 
 ## PROTOCOL: XP_Award_Protocol
 
-**TRIGGER**: Combat ends successfully OR exploration achievement
+**TRIGGER**: Combat ends successfully
 **INPUT**: total_xp
-**GUARD**: combat_ended AND enemies_defeated OR exploration_achievement
+**GUARD**: combat_ended AND enemies_defeated
 
 **PROCEDURE**:
 ```
@@ -22,52 +22,6 @@
 4. UPDATE: party_state
 5. RETURN
 ```
-
-## PROTOCOL: Exploration_XP_Award
-
-**TRIGGER**: Player discovers new location, solves environmental puzzle, or makes significant non-combat achievement
-**INPUT**: discovery_type, difficulty_rating (optional)
-**GUARD**: achievement_significant
-
-**PROCEDURE**:
-```
-1. DETERMINE: xp_award based on discovery_type and party_level:
-     a. GET: party_average_level = FLOOR(SUM(character.level FOR character IN party) / COUNT(party))
-     b. CALC: base_xp_multiplier = party_average_level * 10
-
-     c. SWITCH discovery_type:
-          CASE "minor_discovery":
-            # Hidden chest, secret door, hidden passage
-            SET: xp_award = base_xp_multiplier * 1 (e.g., level 5 → 50 XP)
-
-          CASE "major_discovery":
-            # New location, dungeon entrance, hidden settlement
-            SET: xp_award = base_xp_multiplier * 2 (e.g., level 5 → 100 XP)
-
-          CASE "environmental_puzzle":
-            # Trap disarmed, mechanism solved, riddle answered
-            IF difficulty_rating PROVIDED:
-              SET: xp_award = difficulty_rating * 25
-            ELSE:
-              SET: xp_award = base_xp_multiplier * 1.5 (e.g., level 5 → 75 XP)
-
-          CASE "npc_alliance":
-            # Gained ally, negotiated peace, earned trust
-            SET: xp_award = base_xp_multiplier * 1.5
-
-          CASE "lore_discovery":
-            # Major story revelation, translated ancient text, pieced together mystery
-            SET: xp_award = base_xp_multiplier * 1
-
-          DEFAULT:
-            SET: xp_award = base_xp_multiplier * 1
-
-2. OUT: "⭐ Exploration XP: [discovery_type] discovered!"
-3. CALL: XP_Award_Protocol WITH total_xp=xp_award
-4. RETURN
-```
-
-⚠️ **USAGE GUIDANCE**: Award exploration XP for meaningful achievements that require player skill, investigation, or problem-solving. Do not award for routine actions like "entering a room" or "talking to an NPC". Reserve for moments that feel like accomplishments.
 
 ## PROTOCOL: Level_Check_Protocol
 
@@ -289,30 +243,11 @@
 **PROCEDURE**:
 ```
 1. GET: quest FROM campaign.quests
-2. IF quest NOT found: OUT "Quest not found" → RETURN
-
-3. IF quest.recommended_level EXISTS:
-     a. CALC: party_average_level = FLOOR(SUM(character.level FOR character IN party) / COUNT(party))
-     b. IF party_average_level < quest.recommended_level:
-          OUT: "⚠️ LEVEL WARNING"
-          OUT: "This quest is designed for level [quest.recommended_level] characters."
-          OUT: "Your party averages level [party_average_level]."
-          IF quest.level_warning EXISTS:
-            OUT: "[quest.level_warning]"
-          ELSE:
-            OUT: "Proceeding may result in difficult encounters or character death."
-          OUT: ""
-          PROMPT: "Accept this quest anyway? (yes/no)"
-          ⛔ WAIT: confirmation
-          IF confirmation != "yes":
-            OUT: "Quest not accepted."
-            RETURN
-
-4. MOVE: quest_id FROM quests_available TO quests_active
-5. OUT: "✓ Quest accepted: [quest_name]"
-6. SHOW: quest objectives
-7. UPDATE: party_state
-8. RETURN
+2. MOVE: quest_id FROM quests_available TO quests_active
+3. OUT: "✓ Quest accepted: [quest_name]"
+4. SHOW: quest objectives
+5. UPDATE: party_state
+6. RETURN
 ```
 
 ## PROTOCOL: Quest_Completion_Protocol

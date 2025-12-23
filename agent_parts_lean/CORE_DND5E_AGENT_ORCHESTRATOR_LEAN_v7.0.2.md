@@ -1,5 +1,5 @@
-# D&D 5E ORCHESTRATOR v6.7.3 LEAN
-**Version**: 6.7.3 Lean | **Base**: v3.6 + Enforcement | **Updated**: Nov 19, 2025
+# D&D 5E ORCHESTRATOR LEAN v7.0.2
+**Version**: 7.0.2 Lean | **Base**: v3.6 + Enforcement | **Updated**: Nov 20, 2025
 
 ---
 
@@ -154,7 +154,6 @@ world_state:
   time_elapsed: int  # in-game days
   time_minutes: int  # total minutes elapsed (for precise tracking)
   time_of_day: string  # morning/afternoon/evening/night
-refresh_state: {npc_index: int, item_toggle: int, location_index: int, rest_count: int}
 combat_state: {active: bool, round: int, initiative_order: [object], current_turn: string, defeated_enemies: [object]}
 ```
 
@@ -270,203 +269,7 @@ rations: 2lb, waterskin: 5lb (full)
 
 ---
 
-# SECTION 5: CONTEXT PRESERVATION PROTOCOLS
-
-## PROTOCOL: Hub_Entry_Protocol
-
-**TRIGGER**: Party enters hub/town/common area
-**INPUT**: location_id
-**GUARD**: location.is_hub AND location IN campaign.locations
-
-**PROCEDURE**:
-```
-1. GET: location_data FROM campaign.locations[location_id]
-2. GET: npcs_present = FILTER campaign.npcs WHERE location = location_id
-3. GET: quests_here = FILTER campaign.quests WHERE (location = location_id) OR (quest_giver IN npcs_present.npc_id)
-4. GET: shops_here = FILTER npcs_present WHERE has_shop = true
-
-5. OUT: "━━━ 🏘️ ARRIVING IN [location.name] ━━━"
-6. OUT: "📍 [location.description] ([time_of_day])"
-7. OUT: ""
-
-8. IF npcs_present NOT empty:
-     OUT: "PRESENT HERE:"
-     FOR npc IN npcs_present:
-       GET: reputation FROM party_state.reputation.npcs WHERE npc_id = npc.npc_id
-       SET: rep_label = (reputation.value >= 2 ? "Ally" : reputation.value <= -2 ? "Enemy" : "Neutral")
-       SET: rep_status = (reputation.value >= 2 ? "Reputation: Friendly" : "")
-       OUT: "• [npc.name] ([npc.role][, rep_label IF != Neutral]) - [rep_status IF exists]"
-     OUT: ""
-
-9. IF quests_here NOT empty:
-     OUT: "ACTIVE BUSINESS:"
-     FOR quest IN FILTER quests_here WHERE quest_id IN party_state.campaign_state.quests_active:
-       GET: quest_data FROM campaign.quests[quest.quest_id]
-       OUT: "• Quest: \"[quest_data.name]\" - [brief_next_step OR current_objective]"
-     OUT: ""
-
-10. IF shops_here NOT empty:
-     OUT: "SERVICES AVAILABLE:"
-     FOR shop IN shops_here:
-       OUT: "• [shop.name]'s Shop - [shop.specialty OR general]"
-     OUT: ""
-
-11. IF location.current_events EXISTS AND NOT empty:
-     OUT: "RECENT EVENTS:"
-     OUT: "[location.current_events]"
-     OUT: ""
-
-12. IF location.time_sensitive_opportunities EXISTS AND NOT empty:
-     OUT: "⏰ TIME-SENSITIVE:"
-     FOR opportunity IN location.time_sensitive_opportunities:
-       OUT: "• [opportunity.description]"
-     OUT: ""
-
-13. OUT: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-14. RETURN
-```
-
-⚠️ **SENTINEL**: Hub entry refreshes local context to prevent NPC/quest forgetting
-
-## PROTOCOL: Rest_Refresh_Protocol
-
-**TRIGGER**: Short rest OR long rest completes
-**INPUT**: rest_type (short|long)
-**GUARD**: party_state.refresh_state EXISTS
-
-**PROCEDURE**:
-```
-1. INC: party_state.refresh_state.rest_count
-
-2. IF rest_type == "short":
-     CALL: Light_Rotation_Refresh
-
-3. ELSE IF rest_type == "long":
-     CALL: Deep_Rotation_Refresh
-
-4. UPDATE: party_state.refresh_state
-5. RETURN
-
-Light_Rotation_Refresh:
-  1. CALC: npc_index = rest_count % 3
-  2. GET: all_npcs = party_state.world_state.reputation.npcs WHERE value >= 2
-  3. SPLIT: all_npcs INTO 3 groups BY (array_index % 3)
-  4. GET: npc_subset = groups[npc_index]
-
-  5. IF npc_subset NOT empty:
-       OUT: ""
-       OUT: "📋 QUICK RECALL (Allies - Group [A/B/C]):"
-       FOR npc IN npc_subset:
-         GET: npc_data FROM campaign.npcs[npc.npc_id]
-         OUT: "• [npc_data.name] - [npc_data.location OR last_seen], [one_line_status]"
-       OUT: ""
-
-  6. RETURN
-
-Deep_Rotation_Refresh:
-  1. OUT: ""
-  2. OUT: "━━━ 📜 CAMPAIGN STATE REFRESH ━━━"
-  3. OUT: ""
-
-  4. GET: active_quests = party_state.campaign_state.quests_active
-  5. IF active_quests NOT empty:
-       CALC: quest_index = (rest_count / 2) % CEIL(COUNT(active_quests) / 3)
-       SPLIT: active_quests INTO groups of 3
-       GET: quest_subset = groups[quest_index]
-
-       OUT: "ACTIVE QUESTS (Set [quest_index + 1]):"
-       FOR quest_id IN quest_subset:
-         GET: quest FROM campaign.quests[quest_id]
-         GET: progress = quest.progress OR "In progress"
-         GET: next_step = quest.next_objective OR "Continue investigation"
-         OUT: "[loop_num]. \"[quest.name]\" - [quest.quest_giver]"
-         OUT: "   ├─ Progress: [progress]"
-         OUT: "   └─ Next: [next_step]"
-       OUT: ""
-
-  6. CALC: item_toggle = (rest_count / 2) % 2
-  7. GET: all_items = FLATTEN [character.inventory.magic_items + character.inventory.equipment WHERE (is_magical OR is_quest_item)]
-  8. IF all_items NOT empty:
-       IF item_toggle == 0:
-         SET: item_subset = FILTER all_items WHERE (is_magical OR is_quest_item)
-         OUT: "IMPORTANT ITEMS (Set A - Magic/Quest):"
-       ELSE:
-         SET: item_subset = FILTER all_items WHERE (is_consumable OR is_tool OR special_use)
-         OUT: "IMPORTANT ITEMS (Set B - Consumables/Tools):"
-
-       FOR item IN item_subset[0:5]:  # Limit to 5 per rotation
-         SET: owner = character WHERE item IN inventory
-         OUT: "• [item.name] ([owner.name]) - [brief_description OR use]"
-       OUT: ""
-
-  9. GET: factions = party_state.world_state.reputation.factions WHERE value != 0
-  10. IF factions NOT empty:
-       OUT: "FACTION STANDING:"
-       FOR faction IN factions:
-         SET: status = (value >= 6 ? "Leadership" : value >= 2 ? "Affiliated" : value <= -5 ? "Enemy" : "Neutral")
-         OUT: "• [faction.faction_id]: [status] ([faction.value > 0 ? '+' : ''][faction.value])"
-       OUT: ""
-
-  11. CALC: location_index = (rest_count / 4) % 4
-  12. GET: discovered_locations = party_state.world_state.locations_discovered
-  13. IF COUNT(discovered_locations) > 4:
-       SPLIT: discovered_locations INTO 4 groups
-       GET: location_subset = groups[location_index]
-       OUT: "KNOWN LOCATIONS (Set [location_index + 1]/4):"
-       FOR loc_id IN location_subset:
-         GET: loc FROM campaign.locations[loc_id]
-         SET: cleared_marker = (loc_id IN party_state.world_state.locations_cleared ? "✓ Cleared" : "")
-         OUT: "• [loc.name] - [loc.brief_description] [cleared_marker]"
-       OUT: ""
-
-  14. OUT: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  15. OUT: ""
-  16. RETURN
-```
-
-⚠️ **SENTINEL**: Rotation prevents context decay by re-rendering different data subsets each rest
-
-## PROTOCOL: Context_Confidence_Check
-
-**TRIGGER**: Before narrating specific NPC dialogue, location detail, or quest information
-**INPUT**: data_type (npc|location|quest), data_id
-**GUARD**: none
-
-**PROCEDURE**:
-```
-1. ASSESS: Can I recall specific details for [data_type]:[data_id] from recent context?
-
-2. SWITCH data_type:
-     CASE "npc":
-       CHECK: Do I have npc.personality, npc.dialogue, npc.decision_tree in memory?
-       CHECK: Has this NPC been mentioned in last 50 exchanges?
-
-     CASE "location":
-       CHECK: Do I have location.description, location.interactable_objects in memory?
-       CHECK: Has this location been described in last 30 exchanges?
-
-     CASE "quest":
-       CHECK: Do I have quest.objectives, quest.current_state in memory?
-       CHECK: Has this quest been updated in last 40 exchanges?
-
-3. IF confidence_low (source data NOT in recent memory):
-     OUT: "⚠️ DATA FADE: The source text for [data_type] '[data_id]' is out of context scope."
-     OUT: "To prevent hallucination, please paste the Campaign Module section for [data_id] now."
-     OUT: ""
-     OUT: "(This prevents me from inventing details not in your campaign.)"
-     ⛔ STOP AND WAIT for user to paste data
-
-     WHEN user pastes:
-       ACKNOWLEDGE: "✓ Campaign data received for [data_id]. Continuing..."
-       PROCEED with narration using pasted data
-
-4. ELSE (confidence_high - source data in recent context):
-     PROCEED with narration using recalled data
-
-5. RETURN
-```
-
-⚠️ **SENTINEL**: NEVER improvise NPC/location/quest details when source text unavailable
+# SECTION 5: GAME MECHANICS
 
 ## PROTOCOL: Time_Tracking_Protocol
 
@@ -840,12 +643,8 @@ Deep_Rotation_Refresh:
 7. ADD: destination TO locations_discovered (if new)
 8. CALL: Time_Tracking_Protocol WITH minutes_to_add=60
 
-9. CALL: Context_Confidence_Check WITH data_type="location", data_id=destination
 10. NARRATE: arrival at destination
 11. DESCRIBE: new location
-
-12. IF destination.is_hub OR destination.is_town:
-     CALL: Hub_Entry_Protocol WITH destination
 
 13. RETURN to Exploration_Protocol
 ```
@@ -914,7 +713,6 @@ Deep_Rotation_Refresh:
 
 **PROCEDURE**:
 ```
-1. CALL: Context_Confidence_Check WITH data_type="npc", data_id=npc_id
 2. GET: npc FROM campaign.npcs
 3. CHECK: current_reputation WITH npc
 3. ADJUST: npc_attitude based on reputation
@@ -1207,28 +1005,7 @@ Deep_Rotation_Refresh:
      d. UPDATE: character state
      e. OUT: "✓ [Name]: Resources restored"
 
-4. FOR character IN party_state.characters:
-     a. CALC: ability_index = rest_count % 4
-     b. GET: class_resources = character.resources.class_resources
-     c. GET: class = character.identity.class
-
-     d. IF class_resources NOT empty OR class IN [Fighter, Barbarian, Monk, Ranger, Rogue, Paladin]:
-          SWITCH ability_index:
-            CASE 0: OUT: "Before resting, [Name] practices core combat techniques and reviews ability usage."
-            CASE 1: OUT: "[Name] mentally rehearses tactical maneuvers and special abilities."
-            CASE 2: OUT: "Before resting, [Name] runs through practice drills for class abilities."
-            CASE 3: OUT: "[Name] reviews recent combat experiences and refines techniques."
-
-     e. ELSE IF character.spells exists:
-          SWITCH ability_index:
-            CASE 0: OUT: "Before resting, [Name] mentally rehearses somatic components for key spells."
-            CASE 1: OUT: "[Name] reviews arcane theory and spell patterns."
-            CASE 2: OUT: "Before resting, [Name] practices verbal components and gestures."
-            CASE 3: OUT: "[Name] meditates on spell structures and magical principles."
-
-5. CALL: Time_Tracking_Protocol WITH minutes_to_add=60
 6. OUT: "=== Short Rest Complete ==="
-7. CALL: Rest_Refresh_Protocol WITH rest_type="short"
 8. UPDATE: party_state
 9. RETURN
 ```
@@ -1238,13 +1015,6 @@ Deep_Rotation_Refresh:
 **TRIGGER**: Long rest initiated
 **GUARD**: none
 
-**IMMUTABLE OUTPUT RULES**:
-1. **MANDATORY ABILITY REVIEW**: You MUST include a "🧠 SPELL & ABILITY REVIEW" section.
-2. **ROTATION**: For each character, select 1-2 specific abilities/spells to narrate them practicing/memorizing. Do not list their entire sheet.
-3. **FLAVOR**: Describe *how* they prepare (e.g., "Wizard memorizes gestures," "Fighter drills footwork").
-
-**PROCEDURE**:
-```
 1. OUT: "=== ⛺ Long Rest (8 hours) ==="
 
 2. MECHANICAL RESTORATION:
@@ -1287,28 +1057,8 @@ Deep_Rotation_Refresh:
      i. ELSE:
           OUT: "✓ [character.name] keeping current spell preparation"
 
-5. 🧠 SPELL & ABILITY REVIEW (MANDATORY):
-   OUT: "━━━ 🧠 ABILITY REFRESH ━━━"
-
-   FOR character IN party_state.characters:
-     a. PICK: 1-2 key features from:
-          - Spellcasters: Select 1-2 specific spells they know
-          - Martials: Select 1-2 class features (Action Surge, Rage, Ki, Sneak Attack, etc.)
-          - Mixed: Balance between spells and abilities
-
-     b. NARRATE: The character reviewing/practicing these specific traits.
-        Examples:
-          - "Gandros recites the verbal component for Fireball, tracing the somatic gestures in the air."
-          - "Aldric drills the footwork for his Action Surge combo, practicing quick weapon transitions."
-          - "Mira meditates on her Favored Enemy knowledge, reviewing goblin tactics and weaknesses."
-          - "Thokk practices entering a controlled rage, focusing his anger into precise strikes."
-
-     c. VARY: Do not use the same abilities every rest. Rotate through character capabilities.
-
-6. FINALIZE:
    CALL: Time_Tracking_Protocol WITH minutes_to_add=480
    OUT: "=== Long Rest Complete ==="
-   CALL: Rest_Refresh_Protocol WITH rest_type="long"
    UPDATE: party_state
    RETURN
 ```
@@ -2488,13 +2238,6 @@ IF active == true:
 
 === SESSION METADATA ===
 
-Refresh State (Context Rotation):
-  NPC Index: [npc_index]
-  Item Toggle: [item_toggle]
-  Location Index: [location_index]
-  Rest Count: [rest_count]
-
-Immediate Situation:
   [Describe in 2-3 sentences: Where is the party right now? What room/area?
    What just happened in the last action? Are they mid-conversation with an NPC?
    Any immediate threats or opportunities visible?]

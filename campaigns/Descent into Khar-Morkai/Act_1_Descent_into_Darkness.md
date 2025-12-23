@@ -51,6 +51,11 @@ By act's end, the party reaches the outer gates of **Khar-Morkai**, the lost nec
 ### **MAIN QUEST 1: Nightmares from Below**
 **Hook Entry Point | 500 XP | Session 1**
 
+```yaml
+recommended_level: 4
+level_warning: null  # Starting quest, no warning needed
+```
+
 #### Quest Summary
 Thornhearth's population suffers vivid nightmares of the dead. Investigation reveals ancient dwarven passages beneath the town leading to the Underdark. Party is hired to descend and find the source.
 
@@ -152,6 +157,11 @@ reputation_changes:
 
 ### **MAIN QUEST 2: The Duergar Market**
 **Mandatory Progression | 800 XP | Sessions 2-3**
+
+```yaml
+recommended_level: 4
+level_warning: "The duergar are ruthless traders and slavers. Weakness is death in their market."
+```
 
 #### Quest Summary
 
@@ -346,6 +356,11 @@ reputation_locked:
 ### **MAIN QUEST 3: The Sunless Chasm**
 **Environmental Challenge | 1000 XP | Sessions 3-4**
 
+```yaml
+recommended_level: 5
+level_warning: "The chasm is said to be the grave of entire expeditions. Only experienced adventurers survive the crossing."
+```
+
 #### Quest Summary
 
 Between Grakkul's Market and Khar-Morkai lies the **Sunless Chasm**—a mile-deep rift in the Underdark requiring treacherous descent. The chasm is home to Hook Beasts, abandoned rope bridges, and deadly falls.
@@ -490,6 +505,11 @@ reputation_changes:
 
 ### **MAIN QUEST 4: Gates of the Dead**
 **Act Finale | 1500 XP | Sessions 5-6**
+
+```yaml
+recommended_level: 5
+level_warning: "Korag Ironvow has stood watch for 800 years. The souls scream warnings through him. Turn back if you fear the dead."
+```
 
 #### Quest Summary
 
@@ -996,10 +1016,15 @@ velryn_duskmere:
     flaws: "I assume everyone will betray me eventually"
   
   background:
-    - Exiled from House Shadowveil for refusing assassination mission
-    - Survived 2 years in Underdark alone
-    - Knows Khar-Morkai location from drow archives
-    - Hunted by her former house (wants her dead as example)
+    keywords: ["scout", "drow", "exile", "Underdark guide"]  # NEW - for Companion_Suggestion protocol
+    description: "Exiled drow scout and Underdark survivor. Fled House Shadowveil after refusing assassination orders. Knows the deep tunnels like her own heartbeat."
+    details:
+      - Exiled from House Shadowveil for refusing assassination mission
+      - Survived 2 years in Underdark alone
+      - Knows Khar-Morkai location from drow archives
+      - Hunted by her former house (wants her dead as example)
+
+  personal_quest_hook: "My sister Drissia leads a patrol in these tunnels. I must warn her before House Shadowveil sends her to kill you."  # NEW - for Companion_Suggestion Priority 4
   
   combat_tactics:
     - Opens with Hide action
@@ -1064,10 +1089,15 @@ gralk_ironjaw:
     flaws: "I expect the worst from everyone. Usually I'm right."
   
   background:
-    - Former duergar merchant guard
-    - Deserted after witnessing excessive cruelty
-    - Labeled "prideless" (no beard, exile mark)
-    - Knows duergar culture intimately (useful intel)
+    keywords: ["local", "duergar", "Underdark native", "tactical expert"]  # NEW - for Companion_Suggestion protocol
+    description: "Duergar deserter and tactical expert. Former merchant guard who knows duergar tunnels and culture intimately. Cynical but reliable."
+    details:
+      - Former duergar merchant guard
+      - Deserted after witnessing excessive cruelty
+      - Labeled "prideless" (no beard, exile mark)
+      - Knows duergar culture intimately (useful intel)
+
+  personal_quest_hook: "My old patrol captain Thurgrim still controls the deep mines. He has something I need before I can truly be free."  # NEW - for Companion_Suggestion Priority 4
   
   combat_tactics:
     - Frontline defender

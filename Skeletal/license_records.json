@@ -1,0 +1,234 @@
+[
+  {
+    "campaign": "SHADOWS OF THE UNDERDARK",
+    "purchaser": "user@example.com",
+    "license_key": "c092bab5e8c37aa2",
+    "encrypted_file": "CAMPAIGN_Shadows_of_the_Underdark_ENCRYPTED.md",
+    "generated_at": "2025-12-23T02:25:24.710910",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "4ee5f3e75c0dbacc",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md",
+    "generated_at": "2025-12-22T19:30:05.790862",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "9181cfa91a74143d",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md",
+    "kernel_hash": "d2e30aff065548e601076a5bb1bf076a",
+    "generated_at": "2025-12-22T19:46:39.864964",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "04e66f013e30b5b2",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md",
+    "kernel_hash": "d2e30aff065548e601076a5bb1bf076a",
+    "generated_at": "2025-12-22T20:00:38.906621",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "f4d2f7f13722e125",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": "d2e30aff065548e601076a5bb1bf076a",
+    "generated_at": "2025-12-22T20:18:53.317965",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "883fef7d3dbc1aeb",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": "d2e30aff065548e601076a5bb1bf076a",
+    "generated_at": "2025-12-22T20:53:19.778410",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "d83c7946734bc19e",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": "d2e30aff065548e601076a5bb1bf076a",
+    "generated_at": "2025-12-22T21:08:43.856557",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "a448e5388d13c1f5",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": "d2e30aff065548e601076a5bb1bf076a",
+    "generated_at": "2025-12-22T21:14:37.790953",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "547bd4ff762c4c55",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": "21921f98a5d1bef3b36fc31a83061c94",
+    "generated_at": "2025-12-22T21:21:30.756428",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "49c315309d694587",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": "7f7a179b161d68a0a821ad1115dff9ee",
+    "generated_at": "2025-12-22T22:28:34.354577",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "7a4140fea7a4e151",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": "7f7a179b161d68a0a821ad1115dff9ee",
+    "generated_at": "2025-12-22T22:33:36.856029",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "bd23640b91d5430e",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": "7f7a179b161d68a0a821ad1115dff9ee",
+    "generated_at": "2025-12-22T23:08:21.646188",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "508f7b79459f1e0a",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": "7f7a179b161d68a0a821ad1115dff9ee",
+    "generated_at": "2025-12-22T23:16:56.517190",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "5fc4917f952c772e",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": "33581c96cb807a25f07c1b5302420f71",
+    "generated_at": "2025-12-22T23:58:58.790782",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "9927793f82a648f9",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": "33581c96cb807a25f07c1b5302420f71",
+    "generated_at": "2025-12-23T00:02:20.696891",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "f107398d583345d9",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": null,
+    "generated_at": "2025-12-23T00:04:04.325354",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "ff5dadf45b5cae29",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": null,
+    "generated_at": "2025-12-23T00:16:48.217195",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "715b5e7e24a3c125",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": null,
+    "generated_at": "2025-12-23T00:22:53.574425",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "d532682962bba0dd",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": null,
+    "generated_at": "2025-12-23T00:42:54.145089",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "26185a1419af7327",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": null,
+    "generated_at": "2025-12-23T01:17:05.915408",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "3bfea7b84aed02c5",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": null,
+    "generated_at": "2025-12-23T01:17:41.982839",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "4bc1de737aa2f7ea",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": null,
+    "generated_at": "2025-12-23T01:17:51.927816",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "b0d1cba110ac5170",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": null,
+    "generated_at": "2025-12-23T04:27:41.025405",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "40383142b4e598b9",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": null,
+    "generated_at": "2025-12-23T04:41:17.447323",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "f4f651b8ed15a93d",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": null,
+    "generated_at": "2025-12-23T04:54:20.130612",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "63c4a679630068db",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md, CAMPAIGN_The_Towers_Trial_ENCRYPTED_GEMINI.md",
+    "kernel_hash": null,
+    "generated_at": "2025-12-23T05:24:09.068047",
+    "status": "active"
+  }
+]

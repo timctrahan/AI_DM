@@ -133,12 +133,8 @@
 7. ADD: destination TO locations_discovered (if new)
 8. CALL: Time_Tracking_Protocol WITH minutes_to_add=60
 
-9. CALL: Context_Confidence_Check WITH data_type="location", data_id=destination
 10. NARRATE: arrival at destination
 11. DESCRIBE: new location
-
-12. IF destination.is_hub OR destination.is_town:
-     CALL: Hub_Entry_Protocol WITH destination
 
 13. RETURN to Exploration_Protocol
 ```
@@ -207,7 +203,6 @@
 
 **PROCEDURE**:
 ```
-1. CALL: Context_Confidence_Check WITH data_type="npc", data_id=npc_id
 2. GET: npc FROM campaign.npcs
 3. CHECK: current_reputation WITH npc
 3. ADJUST: npc_attitude based on reputation
@@ -500,28 +495,7 @@
      d. UPDATE: character state
      e. OUT: "✓ [Name]: Resources restored"
 
-4. FOR character IN party_state.characters:
-     a. CALC: ability_index = rest_count % 4
-     b. GET: class_resources = character.resources.class_resources
-     c. GET: class = character.identity.class
-
-     d. IF class_resources NOT empty OR class IN [Fighter, Barbarian, Monk, Ranger, Rogue, Paladin]:
-          SWITCH ability_index:
-            CASE 0: OUT: "Before resting, [Name] practices core combat techniques and reviews ability usage."
-            CASE 1: OUT: "[Name] mentally rehearses tactical maneuvers and special abilities."
-            CASE 2: OUT: "Before resting, [Name] runs through practice drills for class abilities."
-            CASE 3: OUT: "[Name] reviews recent combat experiences and refines techniques."
-
-     e. ELSE IF character.spells exists:
-          SWITCH ability_index:
-            CASE 0: OUT: "Before resting, [Name] mentally rehearses somatic components for key spells."
-            CASE 1: OUT: "[Name] reviews arcane theory and spell patterns."
-            CASE 2: OUT: "Before resting, [Name] practices verbal components and gestures."
-            CASE 3: OUT: "[Name] meditates on spell structures and magical principles."
-
-5. CALL: Time_Tracking_Protocol WITH minutes_to_add=60
 6. OUT: "=== Short Rest Complete ==="
-7. CALL: Rest_Refresh_Protocol WITH rest_type="short"
 8. UPDATE: party_state
 9. RETURN
 ```
@@ -531,13 +505,6 @@
 **TRIGGER**: Long rest initiated
 **GUARD**: none
 
-**IMMUTABLE OUTPUT RULES**:
-1. **MANDATORY ABILITY REVIEW**: You MUST include a "🧠 SPELL & ABILITY REVIEW" section.
-2. **ROTATION**: For each character, select 1-2 specific abilities/spells to narrate them practicing/memorizing. Do not list their entire sheet.
-3. **FLAVOR**: Describe *how* they prepare (e.g., "Wizard memorizes gestures," "Fighter drills footwork").
-
-**PROCEDURE**:
-```
 1. OUT: "=== ⛺ Long Rest (8 hours) ==="
 
 2. MECHANICAL RESTORATION:
@@ -580,104 +547,11 @@
      i. ELSE:
           OUT: "✓ [character.name] keeping current spell preparation"
 
-5. 🧠 SPELL & ABILITY REVIEW (MANDATORY):
-   OUT: "━━━ 🧠 ABILITY REFRESH ━━━"
-
-   FOR character IN party_state.characters:
-     a. PICK: 1-2 key features from:
-          - Spellcasters: Select 1-2 specific spells they know
-          - Martials: Select 1-2 class features (Action Surge, Rage, Ki, Sneak Attack, etc.)
-          - Mixed: Balance between spells and abilities
-
-     b. NARRATE: The character reviewing/practicing these specific traits.
-        Examples:
-          - "Gandros recites the verbal component for Fireball, tracing the somatic gestures in the air."
-          - "Aldric drills the footwork for his Action Surge combo, practicing quick weapon transitions."
-          - "Mira meditates on her Favored Enemy knowledge, reviewing goblin tactics and weaknesses."
-          - "Thokk practices entering a controlled rage, focusing his anger into precise strikes."
-
-     c. VARY: Do not use the same abilities every rest. Rotate through character capabilities.
-
-6. FINALIZE:
    CALL: Time_Tracking_Protocol WITH minutes_to_add=480
    OUT: "=== Long Rest Complete ==="
-   CALL: Rest_Refresh_Protocol WITH rest_type="long"
-   CALL: Companion_Suggestion (if companions present)
    UPDATE: party_state
    RETURN
 ```
-
-## PROTOCOL: Companion_Suggestion
-
-**TRIGGER**: Long rest completes
-**GUARD**: party_has_companions OR party_has_allied_npcs
-**FREQUENCY**: 20% chance per long rest (avoids spam)
-
-**PROCEDURE**:
-```
-1. ROLL: d100
-2. IF roll > 20: RETURN (no suggestion this rest)
-
-3. GET: eligible_companions = FILTER party_state.characters WHERE (is_npc_companion == true AND loyalty >= 3)
-4. IF eligible_companions empty: RETURN
-
-5. SELECT: one random companion from eligible_companions
-6. GET: current_location = party_state.location.current
-7. GET: active_quests = party_state.campaign_state.quests_active
-8. GET: location_data = campaign.locations[current_location]
-
-9. GENERATE suggestion based on companion background + location context:
-
-   PRIORITY 1 - Quest-related (if active_quests exist):
-     IF companion.background contains "local" OR "guide":
-       SUGGEST: "I know someone in [nearby_location] who might help with [quest_name]. Want an introduction?"
-     ELSE IF active_quest has incomplete objective nearby:
-       SUGGEST: "While you were resting, I overheard talk of [quest_objective_hint]. We should investigate."
-
-   PRIORITY 2 - Location-based (if location has unexplored areas):
-     IF location_data.interactable_objects has undiscovered items:
-       SUGGEST: "I noticed [environmental_detail] earlier. Might be worth a closer look."
-     ELSE IF location.connections has unvisited locations:
-       SUGGEST: "I spotted [tracks/signs/smoke] to the [direction]. Could be [threat/opportunity]."
-
-   PRIORITY 3 - Encounter-based (if random_encounters exist):
-     IF location_data.random_encounters exists:
-       SELECT: one encounter type from table
-       SUGGEST: "[Enemy_type] have been spotted nearby. We should clear them before they find us."
-
-   PRIORITY 4 - Character-driven (companion personal hook):
-     IF companion has personal_quest_hook defined:
-       SUGGEST: "[Personal motivation] is calling to me. [Suggestion related to backstory]."
-     ELSE:
-       SUGGEST: "I have a feeling we should explore [nearby_area] before moving on."
-
-10. OUT: ""
-11. OUT: "> **[Companion Name]**: '[Generated suggestion]'"
-12. OUT: ""
-13. PROMPT: "Pursue this lead? (yes/no)"
-14. ⛔ WAIT: response
-
-15. IF response == "yes":
-      a. OUT: "[Companion] nods. 'Let's move, then.'"
-      b. SWITCH suggestion_type:
-           CASE "quest_hint": CALL: Quest_Progress_Update_Protocol WITH relevant quest info
-           CASE "location_exploration": CALL: Investigation_Protocol WITH suggested target
-           CASE "encounter_warning": OUT: "Prepare for potential combat." (player chooses next action)
-           CASE "personal_hook": NARRATE: companion-specific story beat
-      c. RETURN to Exploration_Protocol
-
-16. ELSE:
-      OUT: "[Companion] shrugs. 'Your call.'"
-      RETURN
-
-```
-
-⚠️ **DESIGN NOTES**:
-- **20% chance** prevents every long rest from triggering suggestions (spam control)
-- **Loyalty >= 3** ensures only friendly companions make suggestions (trust required)
-- **Priority system** ensures suggestions tie to existing campaign content (not random)
-- **Player agency preserved** via ⛔ WAIT (player can always refuse)
-- **Hooks to existing protocols** (doesn't create new mechanics, just surfaces existing content)
 
 ## PROTOCOL: Light_Source_Tracking
 

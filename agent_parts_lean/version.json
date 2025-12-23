@@ -1,11 +1,11 @@
 {
   "current_version": {
-    "major": 6,
-    "minor": 8,
-    "patch": 0
+    "major": 7,
+    "minor": 0,
+    "patch": 3
   },
-  "last_change_date": "2025-12-15T14:58:53.288188",
-  "output_filename": "CORE_DND5E_AGENT_ORCHESTRATOR_v6.8.0.md",
+  "last_change_date": "2025-11-20T22:10:50.748682",
+  "output_filename": "CORE_DND5E_AGENT_ORCHESTRATOR_LEAN_v7.0.3.md",
   "part_files": [
     "DND_ORCH_PART1_Foundation.md",
     "DND_ORCH_PART2_SessionMgmt.md",
