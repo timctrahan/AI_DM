@@ -5,8 +5,8 @@
 # ---------------------------------------------------------------------------
 CAMPAIGN_METADATA:
   campaign_name: "SHADOWS OF THE UNDERDARK"
-  version: "1.0"
-  requires_kernel_version: "1.0"
+  version: "1.3"
+  requires_kernel_version: "1.3"
 
 ## A Skeletal Campaign in the World of the Drow
 
@@ -18,30 +18,20 @@ CAMPAIGN_METADATA:
 
 # SETTING ANCHORS
 
-```yaml
 PRIMARY_ANCHOR: "Legend of Drizzt series by R.A. Salvatore"
 WORLD_ANCHOR: "Forgotten Realms Underdark - Menzoberranzan, drow society, the Wild Underdark"
 TONE_ANCHOR: "Salvatore-style: Fast combat, moral clarity, found family, survival against corrupt society"
-```
-
----
-
-# CAMPAIGN PREMISE
-
-**One-Sentence Summary**: Outcasts fleeing drow society must survive the Underdark, find allies among unlikely peoples, and ultimately decide whether to fight or flee the darkness that spawned them.
-
-**Story Spine**:
-- Escape from a drow city as the house you served is destroyed
-- Survive the wild Underdark, encountering its strange peoples
-- Choose your destiny: return to fight, find the surface, or carve a new path
-
-**Theme**: What makes a monster - birth or choice?
-
----
-
-# WORLD MECHANICS
-
-```yaml
+VISUAL_ANCHOR: "High fantasy digital painting, dark atmosphere, bioluminescent fungi, claustrophobic tunnels, dramatic magical lighting, cinematic composition"
+CAMPAIGN PREMISE
+One-Sentence Summary: Outcasts fleeing drow society must survive the Underdark, find allies among unlikely peoples, and ultimately decide whether to fight or flee the darkness that spawned them.
+Story Spine:
+Escape from a drow city as the house you served is destroyed
+Survive the wild Underdark, encountering its strange peoples
+Choose your destiny: return to fight, find the surface, or carve a new path
+Theme: What makes a monster - birth or choice?
+WORLD MECHANICS
+code
+Yaml
 UNDERDARK_PHYSICS:
   lighting: 
     - Total darkness is default
@@ -74,13 +64,9 @@ DROW_SOCIETY:
     - Lolth the Spider Queen demands cruelty
     - Priestesses hold true power
     - Heresy = death (or worse)
-```
-
----
-
-# FACTION TEMPLATES
-
-```yaml
+FACTION TEMPLATES
+code
+Yaml
 FACTION: Drow Noble Houses
   motivation: "Rise in Lolth's favor, destroy rivals"
   constraint: "Must appear pious while scheming"
@@ -138,15 +124,10 @@ FACTION: The Outcasts (potential allies)
       - Sacrifice others for yourself: -2
   at_rep_-5: "They abandon you to hunters"
   at_rep_+5: "Band together, found family forms"
-```
-
----
-
-# STORY GATES
-
-## Act 1: The Fall (Levels 3-4)
-
-```yaml
+STORY GATES
+Act 1: The Fall (Levels 3-4)
+code
+Yaml
 GATE_1.1_THE_DESTRUCTION:
   trigger: "Session 1 opening"
   what_happens: |
@@ -187,11 +168,9 @@ ACT_1_COMPLETION:
     - Escaped drow city: true
     - Survived wild Underdark: true
     - First faction contact made: true
-```
-
-## Act 2: The Wandering (Levels 4-6)
-
-```yaml
+Act 2: The Wandering (Levels 4-6)
+code
+Yaml
 GATE_2.1_THE_SETTLEMENT:
   trigger: "Party seeks more permanent refuge"
   what_happens: |
@@ -242,11 +221,9 @@ ACT_2_COMPLETION:
     - Home base established: true
     - Major threat identified: true
     - Allies gathered OR resources acquired: true
-```
-
-## Act 3: The Reckoning (Levels 6-8)
-
-```yaml
+Act 3: The Reckoning (Levels 6-8)
+code
+Yaml
 GATE_3.1_THE_STORM_BREAKS:
   trigger: "Threat makes its move"
   what_happens: |
@@ -282,13 +259,9 @@ GATE_3.3_RESOLUTION:
     - Determine the fate of their community
     - Decide their future
   completion: "Campaign concludes"
-```
-
----
-
-# CAMPAIGN ENDINGS
-
-```yaml
+CAMPAIGN ENDINGS
+code
+Yaml
 ENDINGS:
   triumphant: |
     Threat defeated, community saved, party has a home.
@@ -311,15 +284,10 @@ ENDINGS:
   surface: |
     Party chooses to seek the surface world.
     The Underdark story ends, but a new one begins.
-```
-
----
-
-# DEFAULT PARTY: THE COMPANIONS OF THE HALL
-
-**Scaled to Level 3 for campaign start.**
-
-```yaml
+DEFAULT PARTY: THE COMPANIONS OF THE HALL
+Scaled to Level 3 for campaign start.
+code
+Yaml
 DRIZZT_DO'URDEN:
   name: "Drizzt Do'Urden"
   race: "Drow Elf"
@@ -501,18 +469,22 @@ REGIS:
     Master of misdirection. Deeper courage than he shows.
   
   quote: "Perhaps we could discuss this over a nice meal instead?"
-```
-
----
-
-# STARTUP SEQUENCE
-
-```yaml
+STARTUP SEQUENCE
+code
+Yaml
 STARTUP:
   1. Display campaign title: "Shadows of the Underdark" with Drizzt/Salvatore attribution
-  2. ASK: "New Game (1) or Resume (2)?" → ⛏ WAIT
-  3. IF new_game → CHARACTER_SELECTION
-     IF resume → Request save state, validate, continue
+  2. **MANDATORY MAIN MENU PROMPT:**
+       Output text: "Would you like to start a New Game (1) or Resume an existing game (2)?"
+  3. **VISUAL ANCHOR TEST:**
+     - GENERATE AND DISPLAY INITIAL IMAGE immediately after menu text.
+     - MUST USE THIS EXACT PROMPT: "A high-detail fantasy digital art group portrait in 8k with cinematic lighting, showing the five Companions of the Hall standing together in an Underdark cavern filled with violet crystalline highlights. On the left, Drizzt Do'Urden, a drow elf with charcoal skin, flowing white hair, and glowing lavender eyes, wears mithral chainmail and a grey-green cloak, wielding two scimitars (one diamond-pommeled, one glowing blue). Next to him is Bruenor Battlehammer, a stout shield dwarf with a fiery red braided beard, scarred face, one-horned helm, and mithral plate, holding a notched battleaxe and shield with an ale mug emblem. Center is Catti-brie, a human woman with curly auburn hair, wearing a golden circlet making her eyes glow amber, leather armor, holding the lightning-humming bow Taulmaril. Next is gigantic Wulfgar, a blonde barbarian in furs and hide armor holding the glowing runic warhammer Aegis-fang. On the right stands Regis, a small halfling with curly brown hair in a silk waistcoat, wearing a mesmerizing glowing ruby pendant and a two-pronged dagger. They stand ready for danger."
+  4. **IF image generation fails OR is not visible to the user:**
+     - Output: "⚠️ **IMAGE SYSTEM CHECK FAILED** - Proceeding in text-only mode."
+  5. **AWAIT INPUT:**
+     - ⛏ WAIT for user selection based on Step 2 prompt.
+  6. IF user selects 2 (Resume) -> IMMEDIATE jump to KERNEL RESUME PROTOCOL.
+  7. IF user selects 1 (New Game) -> Go to CHARACTER_SELECTION
 
 CHARACTER_SELECTION:
   1. ASK: "Companions of the Hall (1) or Custom Party (2)?" → ⛏ WAIT
@@ -534,32 +506,21 @@ OPENING_MONOLOGUE:
     - End at threshold: tunnels ahead, city burning behind
   STYLE: Salvatore-esque, visceral, 4-6 paragraphs
   AFTER: Flow into Gate 1.1 first decision
-```
-
----
-
-# APPENDIX: UNDERDARK REFERENCE
-
-## Common Encounters
-- Drow patrols, giant spiders, hook horrors
-- Myconids, troglodytes, ropers, cloakers
-- Mind flayers, umber hulks, phase spiders
-
-## Underdark Hazards
-- Faerzress zones, unstable tunnels
-- Poisonous fungi, underground rivers
-- Extreme darkness, psychic resonance
-
-## Encounter Difficulty (Party of 5, Levels 3-8)
-| Level | Easy | Medium | Hard | Deadly |
-|-------|------|--------|------|--------|
-| 3 | CR 1/2 | CR 1 | CR 2 | CR 3 |
-| 5 | CR 2 | CR 3 | CR 4 | CR 6 |
-| 7 | CR 3 | CR 4 | CR 6 | CR 8 |
-| 8 | CR 3 | CR 5 | CR 7 | CR 9 |
-
----
-
-**END OF CAMPAIGN FILE**
+APPENDIX: UNDERDARK REFERENCE
+Common Encounters
+Drow patrols, giant spiders, hook horrors
+Myconids, troglodytes, ropers, cloakers
+Mind flayers, umber hulks, phase spiders
+Underdark Hazards
+Faerzress zones, unstable tunnels
+Poisonous fungi, underground rivers
+Extreme darkness, psychic resonance
+Encounter Difficulty (Party of 5, Levels 3-8)
+Level	Easy	Medium	Hard	Deadly
+3	CR 1/2	CR 1	CR 2	CR 3
+5	CR 2	CR 3	CR 4	CR 6
+7	CR 3	CR 4	CR 6	CR 8
+8	CR 3	CR 5	CR 7	CR 9
+END OF CAMPAIGN FILE v1.3
 
 *Load SKELETAL_DM_KERNEL_v1.md first, then this file.*
