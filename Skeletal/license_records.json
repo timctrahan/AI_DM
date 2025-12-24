@@ -230,5 +230,23 @@
     "kernel_hash": null,
     "generated_at": "2025-12-23T05:24:09.068047",
     "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "84019ca9f63515a9",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md",
+    "kernel_hash": null,
+    "generated_at": "2025-12-23T12:44:51.069224",
+    "status": "active"
+  },
+  {
+    "campaign": "The Tower's Trial",
+    "purchaser": "bart.trahan@gmail.com",
+    "license_key": "afe4c8c9876eb8b5",
+    "encrypted_file": "CAMPAIGN_The_Towers_Trial_ENCRYPTED.md",
+    "kernel_hash": null,
+    "generated_at": "2025-12-23T17:21:01.620059",
+    "status": "active"
   }
 ]
