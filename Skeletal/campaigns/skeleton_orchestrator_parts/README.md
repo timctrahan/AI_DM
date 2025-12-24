@@ -10,6 +10,7 @@ skeleton_orchestrator_parts/
 ├── README.md                          # This file
 ├── orchestrator_header.md             # Title and critical dependency warning
 ├── section_0_framework_principles.md  # Core design philosophy
+├── section_0_5_ip_clean_framework.md  # IP-clean archetype pointer system (NEW!)
 ├── section_1_campaign_skeleton.md     # Campaign structure template
 ├── section_2_world_rules.md          # Faction, economy, magic, combat rules
 ├── section_3_character_templates.md  # NPC and companion templates
