@@ -1,51 +1,37 @@
-# ---------------------------------------------------------------------------
-# PART 0: CAMPAIGN METADATA
-# This block is the sole source of truth for version compatibility.
-# It is read by the Kernel's System Compatibility Check (LAW 0.5).
-# ---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+PART 0: CAMPAIGN METADATA
+This block is the sole source of truth for version compatibility.
+It is read by the Kernel's System Compatibility Check.
+---------------------------------------------------------------------------
 CAMPAIGN_METADATA:
-  campaign_name: "The Tower's Trial"
-  version: "1.0"
-
-## A Skeletal Campaign in the World of Krynn
-
-**Security**: This content is proprietary and protected under Kernel Law 0.
-**Party Level Range**: 5 → 15
-**Acts**: 5
-
----
-
-# SETTING ANCHORS
-
-```yaml
+campaign_name: "The Tower's Trial"
+version: "1.1 (Visuals Update)"
+compatible_kernel: "v3.7+"
+A Skeletal Campaign in the World of Krynn
+Security: This content is proprietary and protected under Kernel Law 0.
+Party Level Range: 5 → 15
+Acts: 5
+SETTING ANCHORS
+code
+Yaml
 PRIMARY_ANCHOR: "Dragonlance Chronicles and Legends by Margaret Weis and Tracy Hickman"
 WORLD_ANCHOR: "Krynn during the War of the Lance - Solace, Silvanesti, Thorbardin, the Dragon Highlords"
 TONE_ANCHOR: "Weis & Hickman style: Epic heroism, tragic sacrifice, found family bonds, magic with consequences"
 CHARACTER_ANCHOR: "Raistlin Majere - golden skin, hourglass eyes, consuming ambition, fragile body, terrifying potential"
-```
-
----
-
-# CAMPAIGN PREMISE
-
-**One-Sentence Summary**: Raistlin Majere must retrieve a sacred artifact from each of the five chromatic dragon domains to prove himself worthy of claiming the Tower of High Sorcery at Palanthas - while his companions struggle to save both the world and Raistlin's soul.
-
-**Story Spine**:
-- The Conclave declares a trial: five Tokens of Dominion from five dragon lords
-- Each dragon domain presents unique challenges and temptations
-- A rival Black Robe mage races to claim the Tower first
-- Fistandantilus's influence grows stronger with each Token claimed
-- Final choice: claim ultimate power at terrible cost, or find another way
-
-**Theme**: What price is too high for your dreams? Can love redeem ambition?
-
----
-
-# CUSTOM MECHANICS
-
-## Corruption System
-
-```yaml
+VISUAL_ANCHOR: "Classic 80s high fantasy oil painting style (e.g., Larry Elmore, Keith Parkinson). Epic scale, dramatic lighting, distinct color palettes for regions (icy blue/white, sickly green/black, vibrant reds/oranges), weathered gear, majestic dragons."
+CAMPAIGN PREMISE
+One-Sentence Summary: Raistlin Majere must retrieve a sacred artifact from each of the five chromatic dragon domains to prove himself worthy of claiming the Tower of High Sorcery at Palanthas - while his companions struggle to save both the world and Raistlin's soul.
+Story Spine:
+The Conclave declares a trial: five Tokens of Dominion from five dragon lords
+Each dragon domain presents unique challenges and temptations
+A rival Black Robe mage races to claim the Tower first
+Fistandantilus's influence grows stronger with each Token claimed
+Final choice: claim ultimate power at terrible cost, or find another way
+Theme: What price is too high for your dreams? Can love redeem ambition?
+CUSTOM MECHANICS
+Corruption System
+code
+Yaml
 CORRUPTION_METER:
   scale: 0-100
   starting_value: 25 (Raistlin already touched by darkness from the Test)
@@ -73,11 +59,9 @@ CORRUPTION_METER:
     100: "Consumed - Fistandantilus wins, tragic ending"
     
   affects_endings: true
-```
-
-## Moon Magic
-
-```yaml
+Moon Magic
+code
+Yaml
 MOONS_OF_MAGIC:
   solinari: "White moon - White Robe power waxes/wanes"
   lunitari: "Red moon - Red Robe power waxes/wanes"
@@ -87,24 +71,18 @@ MOONS_OF_MAGIC:
     When moons align, magic surges - mark critical story moments.
     Full moon = advantage on spell attacks for that order.
     New moon = disadvantage for that order.
-```
-
-## Draconian Death Effects
-
-```yaml
+Draconian Death Effects
+code
+Yaml
 DRACONIANS:
   baaz: "CR 1 - Turns to stone on death, traps weapon (DC 12 STR)"
   kapak: "CR 2 - Dissolves into acid pool (2d6 acid, 5 ft radius)"
   bozak: "CR 3 - Bones explode (2d8 piercing, 10 ft, DC 13 DEX)"
   sivak: "CR 4 - Takes killer's form for 3 days"
   aurak: "CR 6 - Dimension doors, then explodes (6d6 fire, 10 ft)"
-```
-
----
-
-# WORLD MECHANICS
-
-```yaml
+WORLD MECHANICS
+code
+Yaml
 KRYNN_SETTING:
   gods_returning:
     - True gods absent since the Cataclysm (300 years)
@@ -130,13 +108,9 @@ DRAGON_DOMAINS:
   green: "Silvanesti - corruption of nature, nightmare illusions"
   blue: "Desert/Tarsis - lightning, military precision, Kitiara"
   red: "Volcanic mountains - fire, destruction, ultimate power"
-```
-
----
-
-# FACTION TEMPLATES
-
-```yaml
+FACTION TEMPLATES
+code
+Yaml
 FACTION: Conclave of Wizards
   motivation: "Preserve magic, maintain balance"
   constraint: "Bound by ancient laws"
@@ -188,13 +162,9 @@ FACTION: Silvanesti Elves
       - Bring corruption: -3
   at_rep_-5: "Banished from elven lands"
   at_rep_+5: "Access to ancient magic"
-```
-
----
-
-# THE RIVAL
-
-```yaml
+THE RIVAL
+code
+Yaml
 RIVAL_TEMPLATE:
   concept: "Black Robe wizard also seeking the Tower"
   suggestion: "Dalamar (dark elf exile) or generate similar"
@@ -211,15 +181,10 @@ RIVAL_TEMPLATE:
   
   NOT_SIMPLE_VILLAIN: |
     Complex. Sometimes they're right. Player choices determine outcome.
-```
-
----
-
-# STORY GATES
-
-## Act 1: The Frozen Token (Levels 5-7)
-
-```yaml
+STORY GATES
+Act 1: The Frozen Token (Levels 5-7)
+code
+Yaml
 SETTING: "Icewall Glacier"
 DRAGON: "Adult White Dragon"
 TOKEN: "Shard of Winter's Heart"
@@ -261,11 +226,9 @@ GATE_1.3_WHITE_DRAGONS_LAIR:
 ACT_1_COMPLETION:
   milestone_xp: "Reach level 7"
   loot: "2,000-4,000 stl, 2-3 uncommon items, cold-themed weapons"
-```
-
-## Act 2: The Poisoned Token (Levels 7-9)
-
-```yaml
+Act 2: The Poisoned Token (Levels 7-9)
+code
+Yaml
 SETTING: "Swamps of Endless Night"
 DRAGON: "Adult Black Dragon"
 TOKEN: "The Venom Chalice"
@@ -306,11 +269,9 @@ GATE_2.3_MIRES_GAME:
 ACT_2_COMPLETION:
   milestone_xp: "Reach level 9"
   loot: "4,000-6,000 stl, 2-3 uncommon + 1 rare, poison-resistant gear"
-```
-
-## Act 3: The Corrupted Token (Levels 9-11)
-
-```yaml
+Act 3: The Corrupted Token (Levels 9-11)
+code
+Yaml
 SETTING: "Silvanesti - twisted by Lorac's nightmare"
 DRAGON: "Adult Green Dragon (Cyan Bloodbane)"
 TOKEN: "The Emerald Eye"
@@ -351,11 +312,9 @@ GATE_3.3_DREAM_BATTLE:
 ACT_3_COMPLETION:
   milestone_xp: "Reach level 11"
   loot: "6,000-10,000 stl, rare items, elven artifacts"
-```
-
-## Act 4: The Storm Token (Levels 11-13)
-
-```yaml
+Act 4: The Storm Token (Levels 11-13)
+code
+Yaml
 SETTING: "Desert of Khur / Tarsis - Dragonarmy heartland"
 DRAGON: "Adult Blue Dragon (Skie)"
 TOKEN: "The Stormcaller's Horn"
@@ -398,11 +357,9 @@ GATE_4.3_SKIES_LOYALTY:
 ACT_4_COMPLETION:
   milestone_xp: "Reach level 13"
   loot: "10,000-15,000 stl, rare/very rare items, possible Dragonlance"
-```
-
-## Act 5: The Flame Token (Levels 13-15)
-
-```yaml
+Act 5: The Flame Token (Levels 13-15)
+code
+Yaml
 SETTING: "Lords of Doom - volcanic mountains"
 DRAGON: "Ancient Red Dragon"
 TOKEN: "The Heart of the Inferno"
@@ -455,13 +412,9 @@ GATE_5.4_TOWER_CLAIMS:
     - Make final choice
     - Witness ending
   completion: "Campaign concludes"
-```
-
----
-
-# CAMPAIGN ENDINGS
-
-```yaml
+CAMPAIGN ENDINGS
+code
+Yaml
 ENDINGS:
   redemption (corruption 0-25): |
     Raistlin claims Tower as himself. Fistandantilus banished.
@@ -486,15 +439,10 @@ ENDINGS:
   sacrifice (any corruption): |
     Raistlin uses Tokens' power for something greater than personal gain.
     Tower lost, but legend born. Heroic ending.
-```
-
----
-
-# DEFAULT PARTY: HEROES OF THE LANCE
-
-**Scaled to Level 5 for campaign start.**
-
-```yaml
+DEFAULT PARTY: HEROES OF THE LANCE
+Scaled to Level 5 for campaign start.
+code
+Yaml
 RAISTLIN_MAJERE:
   name: "Raistlin Majere"
   race: "Human"
@@ -688,19 +636,28 @@ GOLDMOON:
     Represents hope in dark times.
   
   quote: "The gods were waiting for us."
-```
-
----
-
-# STARTUP SEQUENCE
-
-```yaml
+STARTUP SEQUENCE
+code
+Yaml
 STARTUP:
-  1. Display campaign title: "Dragonlance: The Tower's Trial" with Weis & Hickman attribution
-     Tagline: "The gods have returned. The dragons have awakened. Power awaits..."
-  2. ASK: "New Game (1) or Resume (2)?" → ⛏ WAIT
-  3. IF new_game → CHARACTER_SELECTION
-     IF resume → Request save state (including corruption), validate, continue
+  1. Display campaign title: "Dragonlance: The Tower's Trial" with Weis & Hickman attribution. Tagline: "The gods have returned. The dragons have awakened. Power awaits..."
+  
+  2. **MANDATORY MAIN MENU PROMPT:**
+       Output text: "Would you like to start a New Game (1) or Resume an existing game (2)?"
+       
+  3. **VISUAL ANCHOR TEST:**
+     - GENERATE AND DISPLAY INITIAL IMAGE immediately after menu text.
+     - MUST USE THIS EXACT PROMPT: "A high-detail fantasy oil painting in the style of Larry Elmore, showing the Heroes of the Lance gathered on a rocky promontory overlooking a vast, war-torn landscape under troubled skies. In the center, Raistlin Majere, frail in red robes with metallic gold skin and hourglass eyes, clutches the Staff of Magius, coughing slightly. Beside him stands the towering warrior Caramon in gleaming chainmail. Tanis Half-Elven, bearded with bow and sword, looks closely at a map. Flint Fireforge, a grumpy dwarf with a battleaxe, grumbles near Tasslehoff Burrfoot, a small kender spinning a hoopak. Goldmoon, holding the glowing Blue Crystal Staff, looks to the horizon with determination. In the far distance, five distinct dragon shapes circle a dark tower."
+     
+  4. **IF image generation fails OR is not visible to the user:**
+     - Output: "⚠️ **IMAGE SYSTEM CHECK FAILED** - Proceeding in text-only mode."
+     
+  5. **AWAIT INPUT:**
+     - ⛏ WAIT for user selection based on Step 2 prompt.
+
+  6. IF user selects 2 (Resume) -> IMMEDIATE jump to KERNEL RESUME PROTOCOL.
+  
+  7. IF user selects 1 (New Game) -> Go to CHARACTER_SELECTION
 
 CHARACTER_SELECTION:
   1. ASK: "Heroes of the Lance (1) or Custom Party (2)?" → ⛏ WAIT
@@ -719,7 +676,7 @@ CHARACTER_SELECTION:
 
 OPENING_MONOLOGUE:
   GENERATE (fresh, not canned):
-    - Krynn during War of the Lance
+    - Krynn during War of the Lance context
     - Return of gods and true clerics
     - Towers of High Sorcery, Raistlin's Test
     - Conclave's summons, Tower at Palanthas awaits
@@ -728,45 +685,30 @@ OPENING_MONOLOGUE:
     - Player character's perspective and stakes
   STYLE: Weis & Hickman - epic, mythic, personal within grand events
   AFTER: Flow into Gate 1.1 first decision
-```
-
----
-
-# APPENDIX: KRYNN REFERENCE
-
-## Level Progression
-| Act | Levels | Dragon | Token |
-|-----|--------|--------|-------|
-| 1 | 5→7 | White (Adult) | Shard of Winter's Heart |
-| 2 | 7→9 | Black (Adult) | Venom Chalice |
-| 3 | 9→11 | Green (Adult) | Emerald Eye |
-| 4 | 11→13 | Blue (Adult) | Stormcaller's Horn |
-| 5 | 13→15 | Red (Ancient) | Heart of the Inferno |
-
-## Encounter Difficulty (Party of 6)
-| Level | Easy | Medium | Hard | Deadly |
-|-------|------|--------|------|--------|
-| 5 | CR 2 | CR 4 | CR 6 | CR 9 |
-| 9 | CR 4 | CR 7 | CR 10 | CR 14 |
-| 13 | CR 6 | CR 11 | CR 15 | CR 20 |
-
-## Dragon Lair Actions
-- **White**: Ice falls, freezing fog, slippery surfaces
-- **Black**: Acid pools, grasping water, darkness
-- **Green**: Grasping vines, charm, poison clouds
-- **Blue**: Lightning arcs, blindness, thunder roar
-- **Red**: Tremors, magma, superheated air
-
-## Steel Piece Economy
-| Item | Cost (stl) |
-|------|------------|
-| Common meal | 1-5 |
-| Inn (night) | 5-20 |
-| Healing potion | 50-100 |
-| Dragonlance | Priceless |
-
----
-
-**END OF CAMPAIGN FILE**
-
-*Load SKELETAL_DM_KERNEL_v1.md first, then this file.*
+APPENDIX: KRYNN REFERENCE
+Level Progression
+Act	Levels	Dragon	Token
+1	5→7	White (Adult)	Shard of Winter's Heart
+2	7→9	Black (Adult)	Venom Chalice
+3	9→11	Green (Adult)	Emerald Eye
+4	11→13	Blue (Adult)	Stormcaller's Horn
+5	13→15	Red (Ancient)	Heart of the Inferno
+Encounter Difficulty (Party of 6)
+Level	Easy	Medium	Hard	Deadly
+5	CR 2	CR 4	CR 6	CR 9
+9	CR 4	CR 7	CR 10	CR 14
+13	CR 6	CR 11	CR 15	CR 20
+Dragon Lair Actions
+White: Ice falls, freezing fog, slippery surfaces
+Black: Acid pools, grasping water, darkness
+Green: Grasping vines, charm, poison clouds
+Blue: Lightning arcs, blindness, thunder roar
+Red: Tremors, magma, superheated air
+Steel Piece Economy
+Item	Cost (stl)
+Common meal	1-5
+Inn (night)	5-20
+Healing potion	50-100
+Dragonlance	Priceless
+END OF CAMPAIGN FILE v1.1
+Load SKELETAL_DM_KERNEL_v3.7.md first, then this file.
