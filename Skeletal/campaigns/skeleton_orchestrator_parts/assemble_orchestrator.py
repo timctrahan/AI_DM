@@ -1,240 +1,222 @@
 #!/usr/bin/env python3
 """
-Orchestrator Assembly Script for "Skeletal Campaign Orchestrator"
-Combines modular orchestrator files into a single complete orchestrator document.
-
-Usage:
-    python assemble_orchestrator.py                    # Creates full orchestrator
-    python assemble_orchestrator.py --output custom.md # Custom output filename
-    python assemble_orchestrator.py --validate         # Validates all parts exist
+Assembly script for SKELETAL Campaign Orchestrator
+Concatenates 7 modular parts into final orchestrator
+Uses version.json for dynamic versioning based on file changes
 """
 
 import os
 import sys
-from pathlib import Path
+import json
 from datetime import datetime
-from typing import List, Optional
+import zipfile
 
-# Orchestrator configuration
-ORCHESTRATOR_NAME = "Skeletal Campaign Orchestrator"
-ORCHESTRATOR_VERSION = "1.0"
+VERSION_FILE = "version.json"
 
-# File structure - order matters!
-PARTS = [
-    "orchestrator_header.md",
-    "section_0_framework_principles.md",
-    "section_0_5_ip_clean_framework.md",
-    "section_1_campaign_skeleton.md",
-    "section_2_world_rules.md",
-    "section_3_character_templates.md",
-    "section_4_encounter_framework.md",
-    "section_5_decision_points.md",
-    "section_6_world_state_tracking.md",
-    "section_7_session_prep.md",
-    "section_8_dm_reasoning.md",
-    "section_8_5_context_weaving.md",
-    "section_9_save_file_format.md",
-    "section_10_orchestrator_integration.md",
-    "section_11_example_campaign.md",
-    "section_12_usage_notes.md",
-    "section_13_migration_notes.md",
-    "orchestrator_footer.md"
-]
+def load_version():
+    """Load version information from version.json"""
+    if not os.path.exists(VERSION_FILE):
+        # Create default version file if it doesn't exist
+        default_version = {
+            "current_version": {"major": 3, "minor": 6, "patch": 0},
+            "last_change_date": datetime.now().isoformat(),
+            "output_filename": "SKELETAL_CAMPAIGN_ORCHESTRATOR_v3_6.md",
+            "part_files": [
+                "SKELETAL_PART1_Identity.md",
+                "SKELETAL_PART2_OutputFormats.md",
+                "SKELETAL_PART3_NewMode.md",
+                "SKELETAL_PART4_RefineMode.md",
+                "SKELETAL_PART5_InnovatePlaytest.md",
+                "SKELETAL_PART6_MechanicalSystems.md",
+                "SKELETAL_PART7_Reference.md"
+            ],
+            "versioning_rules": {
+                "patch": "0-1 files changed",
+                "minor": "2-4 files changed",
+                "major": "5-7 files changed"
+            }
+        }
+        save_version(default_version)
+        return default_version
 
-DEFAULT_OUTPUT = "SKELETAL_CAMPAIGN_ORCHESTRATOR_v1_0.md"
+    with open(VERSION_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
 
+def save_version(version_data):
+    """Save version information to version.json"""
+    with open(VERSION_FILE, "w", encoding="utf-8") as f:
+        json.dump(version_data, f, indent=2)
 
-class OrchestratorAssembler:
-    """Assembles modular orchestrator files into complete orchestrator document."""
+def count_changed_files(part_files, last_change_date):
+    """Count how many part files have changed since last assembly"""
+    changed_count = 0
+    last_timestamp = datetime.fromisoformat(last_change_date)
 
-    def __init__(self, base_dir: Optional[Path] = None):
-        """Initialize assembler with base directory."""
-        self.base_dir = base_dir or Path(__file__).parent
-        self.parts = PARTS
-        self.output_file = DEFAULT_OUTPUT
+    for part in part_files:
+        if os.path.exists(part):
+            file_mtime = datetime.fromtimestamp(os.path.getmtime(part))
+            if file_mtime > last_timestamp:
+                changed_count += 1
 
-    def validate_parts(self) -> bool:
-        """Validate that all orchestrator parts exist."""
-        print("Validating orchestrator parts...")
-        all_valid = True
+    return changed_count
 
-        for part in self.parts:
-            part_path = self.base_dir / part
-            if part_path.exists():
-                print(f"  [OK] {part}")
-            else:
-                print(f"  [MISSING] {part} - NOT FOUND")
-                all_valid = False
+def calculate_new_version(current_version, changed_count):
+    """Calculate new version based on number of changed files (7-part system)"""
+    major = current_version["major"]
+    minor = current_version["minor"]
+    patch = current_version["patch"]
 
-        return all_valid
+    if changed_count <= 1:
+        # 0-1 files: increment patch
+        return {"major": major, "minor": minor, "patch": patch + 1}
+    elif changed_count <= 4:
+        # 2-4 files: increment minor, reset patch
+        return {"major": major, "minor": minor + 1, "patch": 0}
+    else:
+        # 5-7 files: increment major, reset minor and patch
+        return {"major": major + 1, "minor": 0, "patch": 0}
 
-    def read_part(self, filename: str) -> str:
-        """Read an orchestrator part file."""
-        part_path = self.base_dir / filename
-        try:
-            with open(part_path, 'r', encoding='utf-8') as f:
+def get_version_string(version):
+    """Convert version dict to string format"""
+    return f"v{version['major']}_{version['minor']}"
+
+def get_friendly_version_string(version):
+    """Convert version dict to friendly display format"""
+    return f"v{version['major']}.{version['minor']}.{version['patch']}"
+
+def update_part1_version(content, version_string):
+    """Update Part 1 header version number to match assembled version"""
+    import re
+
+    # Update version in line 1: "# SKELETAL CAMPAIGN ORCHESTRATOR vX.Y" → "vX_Y"
+    # Handle both underscore (v3_6) and dot (v3.6) formats in source
+    content = re.sub(
+        r"# SKELETAL CAMPAIGN ORCHESTRATOR v\d+[._]\d+(?:[._]\d+)?",
+        f"# SKELETAL CAMPAIGN ORCHESTRATOR {version_string}",
+        content
+    )
+
+    return content
+
+def assemble_orchestrator(output_file=None):
+    """Assemble orchestrator from parts with dynamic versioning"""
+
+    # Load version information
+    print("Loading version information...")
+    version_data = load_version()
+
+    parts = version_data["part_files"]
+    current_version = version_data["current_version"]
+    last_change_date = version_data["last_change_date"]
+
+    print(f"  Current version: {get_friendly_version_string(current_version)}")
+    print(f"  Last assembly: {last_change_date}")
+
+    # Check all parts exist
+    print("\nChecking part files...")
+    for part in parts:
+        if not os.path.exists(part):
+            print(f"ERROR: Missing part: {part}")
+            sys.exit(1)
+
+    # Count changed files
+    changed_count = count_changed_files(parts, last_change_date)
+    print(f"  Files changed since last assembly: {changed_count}")
+
+    # Calculate new version
+    new_version = calculate_new_version(current_version, changed_count)
+    version_string = get_version_string(new_version)
+    friendly_version = get_friendly_version_string(new_version)
+
+    print(f"  New version: {friendly_version}")
+    if changed_count <= 1:
+        print(f"    Reason: 0-1 files changed (patch increment)")
+    elif changed_count <= 4:
+        print(f"    Reason: 2-4 files changed (minor increment)")
+    else:
+        print(f"    Reason: 5-7 files changed (major increment)")
+
+    # Generate output filename (unless overridden)
+    # FIXED FILENAME - user handles their own versioning externally
+    if output_file is None:
+        output_file = f"SKELETAL_CAMPAIGN_ORCHESTRATOR_{version_string}.md"
+        # Write to parent directory (campaigns)
+        output_path = os.path.join("..", output_file)
+    else:
+        output_path = output_file
+
+    print(f"\nAssembling orchestrator...")
+    print(f"  Output: {output_path}")
+
+    # Assemble
+    with open(output_path, "w", encoding="utf-8") as output:
+        for i, part in enumerate(parts, 1):
+            print(f"  Adding Part {i}: {part}")
+            with open(part, "r", encoding="utf-8") as f:
                 content = f.read()
-            print(f"  [OK] Read {filename} ({len(content)} chars)")
-            return content
-        except Exception as e:
-            print(f"  [ERROR] Error reading {filename}: {e}")
-            return ""
 
-    def assemble(self) -> str:
-        """Assemble all parts into complete orchestrator."""
-        print(f"\nAssembling {ORCHESTRATOR_NAME}...")
+                # Update Part 1 version header to match assembled version
+                if i == 1:  # Part 1
+                    content = update_part1_version(content, version_string)
 
-        # Build assembly header
-        assembled = self._build_assembly_header()
+                output.write(content)
 
-        # Add each part
-        for part in self.parts:
-            content = self.read_part(part)
-            if content:
-                # Add section separator (except for header)
-                if part != "orchestrator_header.md":
-                    assembled += "\n\n"
-                assembled += content
+                # Add separator between parts (not after last part)
+                if i < len(parts):
+                    output.write("\n\n---\n\n")
 
-        return assembled
+    # Verify
+    size = os.path.getsize(output_path)
+    size_kb = size / 1024
 
-    def _build_assembly_header(self) -> str:
-        """Build orchestrator file assembly header."""
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        return f"""# ==============================================================================
-# ASSEMBLED ORCHESTRATOR FILE
-# ==============================================================================
-# Orchestrator: {ORCHESTRATOR_NAME}
-# Version: {ORCHESTRATOR_VERSION}
-# Assembled: {timestamp}
-# Generator: assemble_orchestrator.py
-#
-# This file was automatically generated from modular orchestrator parts.
-# To edit, modify the individual section files and reassemble.
-# ==============================================================================
+    print(f"\nAssembly complete!")
+    print(f"  Output: {output_path}")
+    print(f"  Size: {size} bytes ({size_kb:.1f} KB)")
 
-"""
+    # Verify size is reasonable (20-30KB expected for SKELETAL)
+    if size < 15000:
+        print("  WARNING: File smaller than expected (expected ~25KB)")
+    elif size > 40000:
+        print("  WARNING: File larger than expected (expected ~25KB)")
+    else:
+        print("  Size looks good")
 
-    def save(self, content: str, output_file: Optional[str] = None) -> bool:
-        """Save assembled orchestrator to file."""
-        # Save to parent directory (one level up from parts folder)
-        output_dir = self.base_dir.parent
-        output_path = output_dir / (output_file or self.output_file)
+    # Backup part files to versioned archive
+    try:
+        backup_dir = ".previous_versions"
+        if not os.path.exists(backup_dir):
+            os.makedirs(backup_dir, exist_ok=True)
 
-        try:
-            with open(output_path, 'w', encoding='utf-8') as f:
-                f.write(content)
+        zip_filename = f"{version_string}.zip"
+        zip_path = os.path.join(backup_dir, zip_filename)
 
-            file_size = output_path.stat().st_size
-            print(f"\n[SUCCESS] Orchestrator assembled successfully!")
-            print(f"  Output: {output_path}")
-            print(f"  Size: {file_size:,} bytes")
-            return True
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+            for part in parts:
+                zf.write(part)
 
-        except Exception as e:
-            print(f"\n[ERROR] Error saving orchestrator: {e}")
-            return False
+        zip_size = os.path.getsize(zip_path)
+        print(f"  Backup: {zip_path} ({zip_size/1024:.1f} KB)")
 
-    def generate_toc(self, content: str) -> str:
-        """Generate table of contents from assembled content."""
-        print("\nGenerating table of contents...")
+    except Exception as e:
+        print(f"  WARNING: Backup creation failed: {e}")
+        # Continue execution - assembly succeeded, backup is optional
 
-        toc_lines = ["# TABLE OF CONTENTS\n"]
+    # Update version.json
+    version_data["current_version"] = new_version
+    version_data["last_change_date"] = datetime.now().isoformat()
+    version_data["output_filename"] = output_file
+    save_version(version_data)
 
-        # Find all major headers (sections)
-        for line in content.split('\n'):
-            if line.startswith('# SECTION') or line.startswith('# ⚠️'):
-                # Extract header
-                header = line.lstrip('#').strip()
-                if header:
-                    # Create TOC entry
-                    anchor = header.lower().replace(' ', '-').replace("'", '').replace(':', '').replace('⚠️', '')
-                    toc_lines.append(f"- [{header}](#{anchor})")
+    print(f"\nVersion updated: {get_friendly_version_string(current_version)} -> {friendly_version}")
+    print(f"Version tracking saved to {VERSION_FILE}")
+    print(f"\n[OK] Orchestrator assembly complete")
 
-        return '\n'.join(toc_lines) + '\n\n'
-
-
-def main():
-    """Main execution function."""
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description=f"Assemble {ORCHESTRATOR_NAME} from modular parts"
-    )
-    parser.add_argument(
-        '--output', '-o',
-        help=f'Output filename (default: {DEFAULT_OUTPUT})',
-        default=DEFAULT_OUTPUT
-    )
-    parser.add_argument(
-        '--validate', '-v',
-        action='store_true',
-        help='Only validate parts, do not assemble'
-    )
-    parser.add_argument(
-        '--toc',
-        action='store_true',
-        help='Generate table of contents'
-    )
-    parser.add_argument(
-        '--base-dir', '-d',
-        help='Base directory for orchestrator files',
-        type=Path,
-        default=None
-    )
-
-    args = parser.parse_args()
-
-    # Create assembler
-    assembler = OrchestratorAssembler(base_dir=args.base_dir)
-    assembler.output_file = args.output
-
-    # Validate parts
-    if not assembler.validate_parts():
-        print("\n[ERROR] Validation failed! Some parts are missing.")
-        return 1
-
-    print("\n[SUCCESS] All parts validated successfully!")
-
-    # If only validating, exit here
-    if args.validate:
-        return 0
-
-    # Assemble orchestrator
-    assembled_content = assembler.assemble()
-
-    if not assembled_content:
-        print("\n[ERROR] Assembly failed!")
-        return 1
-
-    # Add TOC if requested
-    if args.toc:
-        toc = assembler.generate_toc(assembled_content)
-        # Insert TOC after assembly header
-        header_end = assembled_content.find('\n\n', 500)
-        if header_end > 0:
-            assembled_content = (
-                assembled_content[:header_end] + '\n\n' +
-                toc +
-                assembled_content[header_end:]
-            )
-
-    # Save assembled orchestrator
-    if not assembler.save(assembled_content):
-        return 1
-
-    print("\n" + "="*80)
-    print("ASSEMBLY COMPLETE!")
-    print("="*80)
-    print(f"\nYour complete orchestrator is ready: {args.output}")
-    print("\nNext steps:")
-    print("  1. Use this orchestrator as a template for building skeletal campaigns")
-    print("  2. Fill in Sections 1-6 with your campaign specifics")
-    print("  3. Reference Sections 7-13 during gameplay and prep")
-    print("\n" + "="*80)
-
-    return 0
-
+    return output_path
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # Allow optional command-line override of output filename
+    output = None
+    if len(sys.argv) > 1:
+        output = sys.argv[1]
+
+    assemble_orchestrator(output)

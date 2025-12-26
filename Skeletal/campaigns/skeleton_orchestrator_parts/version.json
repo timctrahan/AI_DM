@@ -1,0 +1,23 @@
+{
+  "current_version": {
+    "major": 4,
+    "minor": 1,
+    "patch": 0
+  },
+  "last_change_date": "2025-12-25T11:20:02.973918",
+  "output_filename": "SKELETAL_CAMPAIGN_ORCHESTRATOR_v4_1.md",
+  "part_files": [
+    "SKELETAL_PART1_Identity.md",
+    "SKELETAL_PART2_OutputFormats.md",
+    "SKELETAL_PART3_NewMode.md",
+    "SKELETAL_PART4_RefineMode.md",
+    "SKELETAL_PART5_InnovatePlaytest.md",
+    "SKELETAL_PART6_MechanicalSystems.md",
+    "SKELETAL_PART7_Reference.md"
+  ],
+  "versioning_rules": {
+    "patch": "0-1 files changed",
+    "minor": "2-4 files changed",
+    "major": "5-7 files changed"
+  }
+}

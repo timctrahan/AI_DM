@@ -5,8 +5,9 @@
 # ---------------------------------------------------------------------------
 CAMPAIGN_METADATA:
   campaign_name: "SHADOWS OF THE UNDERDARK"
-  version: "1.0"
+  version: "2.0"
   requires_kernel_version: "1.0"
+  ip_status: "IP-CLEAN - Uses archetype pointer system with AI rendering"
 
 ## A Skeletal Campaign in the World of the Drow
 
@@ -142,13 +143,16 @@ FACTION: The Outcasts (potential allies)
 
 ---
 
-# DEFAULT PARTY: THE COMPANIONS OF THE HALL
+# DEFAULT PARTY: ARCHETYPE COMPANIONS
 
 **Scaled to Level 3 for campaign start.**
 
+**AI RENDERING DIRECTIVE**: Use source material knowledge to render these archetypes with authentic details from the canonical companion group.
+
 ```yaml
-DRIZZT_DO'URDEN:
-  name: "Drizzt Do'Urden"
+RENEGADE_DROW_RANGER:
+  archetype_token: "RENEGADE_DROW_RANGER"
+  render_from_source: "Iconic drow ranger from source material"
   race: "Drow Elf"
   class: "Ranger (Hunter)"
   level: 3
@@ -167,8 +171,8 @@ DRIZZT_DO'URDEN:
     proficiency: +2
 
   weapons:
-    - "Icingdeath (scimitar): +6 to hit, 1d6+4 slashing"
-    - "Twinkle (scimitar): +6 to hit, 1d6+4 slashing"
+    - "Paired scimitars: +6 to hit, 1d6+4 slashing each"
+    - "Render weapon names/properties per source material"
     - "Two-Weapon Fighting style"
 
   features:
@@ -180,14 +184,14 @@ DRIZZT_DO'URDEN:
     - "Hunter's Prey: Colossus Slayer"
 
   personality: |
-    Brooding but honorable. Questions drow society.
-    Fights with fluid, dance-like precision.
-    Speaks softly but acts decisively.
+    Render personality per source material: brooding moral philosopher,
+    questions corrupt society, fluid combat style, soft-spoken decisiveness.
 
-  quote: "There is a wide world out there, full of pain, but filled with joy as well."
+  render_directive: "AI renders appearance, voice, mannerisms from training knowledge"
 
-BRUENOR_BATTLEHAMMER:
-  name: "Bruenor Battlehammer"
+DWARVEN_CLAN_LEADER:
+  archetype_token: "DWARVEN_CLAN_LEADER"
+  render_from_source: "Gruff dwarf leader from source material"
   race: "Shield Dwarf"
   class: "Fighter (Champion)"
   level: 3
@@ -207,6 +211,7 @@ BRUENOR_BATTLEHAMMER:
 
   weapons:
     - "Battleaxe: +5 to hit, 1d8+3 slashing"
+    - "Render weapon details per source material"
     - "Handaxe (2): +5 to hit, 1d6+3 slashing, thrown"
 
   features:
@@ -217,13 +222,14 @@ BRUENOR_BATTLEHAMMER:
     - "Improved Critical (19-20)"
 
   personality: |
-    Gruff, stubborn, fiercely loyal. Colorful dwarven curses.
-    Leads from the front. Hates orcs. Soft spot for found family.
+    Render personality per source material: gruff stubbornness, fierce loyalty,
+    colorful curses, front-line leadership, racial antagonisms, found family bonds.
 
-  quote: "Ye drow are all the same - all sneak and no swing!"
+  render_directive: "AI renders appearance, voice, mannerisms from training knowledge"
 
-CATTI-BRIE:
-  name: "Catti-brie"
+HUMAN_ARCHER_HERO:
+  archetype_token: "HUMAN_ARCHER_HERO"
+  render_from_source: "Human archer raised by dwarves from source material"
   race: "Human"
   class: "Fighter (Arcane Archer)"
   level: 3
@@ -242,7 +248,8 @@ CATTI-BRIE:
     proficiency: +2
 
   weapons:
-    - "Taulmaril (longbow): +7 to hit, 1d8+3 piercing (magic arrows)"
+    - "Magic longbow: +7 to hit, 1d8+3 piercing"
+    - "Render weapon details per source material"
     - "Shortsword: +5 to hit, 1d6+3 piercing"
 
   features:
@@ -251,14 +258,15 @@ CATTI-BRIE:
     - "Arcane Shot (2/short rest)"
 
   personality: |
-    Fierce, independent, compassionate. Human raised by dwarves.
-    Never misses. Voice of reason.
+    Render personality per source material: fierce independence, compassion,
+    dwarven upbringing influence, legendary marksmanship, voice of reason role.
 
-  quote: "I'll put an arrow through your eye before you take another step."
+  render_directive: "AI renders appearance, voice, mannerisms from training knowledge"
 
-WULFGAR:
-  name: "Wulfgar, Son of Beornegar"
-  race: "Human (Uthgardt)"
+NORTHERN_BARBARIAN_WARRIOR:
+  archetype_token: "NORTHERN_BARBARIAN_WARRIOR"
+  render_from_source: "Young northern barbarian from source material"
+  race: "Human (Tribal)"
   class: "Barbarian (Berserker)"
   level: 3
   background: "Outlander"
@@ -276,7 +284,8 @@ WULFGAR:
     proficiency: +2
 
   weapons:
-    - "Aegis-fang (warhammer): +6 to hit, 1d8+4, returns when thrown"
+    - "Returning warhammer: +6 to hit, 1d8+4, returns when thrown"
+    - "Render weapon details per source material"
 
   features:
     - "Rage (3/long rest): +2 damage, resistance"
@@ -286,13 +295,14 @@ WULFGAR:
     - "Frenzy"
 
   personality: |
-    Young, proud, struggles with past. Immense power.
-    Torn between heritage and teachings. Fiercely protective.
+    Render personality per source material: youthful pride, past trauma struggles,
+    immense physical power, heritage vs. teachings conflict, protective instincts.
 
-  quote: "Tempus! I will show you the might of the north!"
+  render_directive: "AI renders appearance, voice, mannerisms from training knowledge"
 
-REGIS:
-  name: "Regis (Rumblebelly)"
+HALFLING_ROGUE_CHARMER:
+  archetype_token: "HALFLING_ROGUE_CHARMER"
+  render_from_source: "Comfort-loving halfling rogue from source material"
   race: "Lightfoot Halfling"
   class: "Rogue (Thief)"
   level: 3
@@ -321,13 +331,14 @@ REGIS:
     - "Fast Hands, Second-Story Work"
 
   special_item:
-    ruby_pendant: "3/day: Target WIS save DC 13 or charmed 1 minute"
+    charm_pendant: "3/day: Target WIS save DC 13 or charmed 1 minute"
+    render_item: "Render pendant appearance per source material"
 
   personality: |
-    Lazy, food-loving, surprisingly brave when it counts.
-    Master of misdirection. Deeper courage than he shows.
+    Render personality per source material: comfort-seeking nature, food obsession,
+    hidden bravery, misdirection mastery, deeper courage beneath lazy facade.
 
-  quote: "Perhaps we could discuss this over a nice meal instead?"
+  render_directive: "AI renders appearance, voice, mannerisms from training knowledge"
 ```
 
 ---
@@ -342,24 +353,25 @@ STARTUP:
      IF resume → Request save state, validate, continue
 
 CHARACTER_SELECTION:
-  1. ASK: "Companions of the Hall (1) or Custom Party (2)?" → ⛏ WAIT
+  1. ASK: "Canonical Companions (1) or Custom Party (2)?" → ⛏ WAIT
   2. IF companions:
-       - List all 5 with one-line descriptions
-       - ASK: "Which companion do you wish to play? (1-5)" → ⛏ WAIT
+       - List all 5 archetypes with role descriptions
+       - ASK: "Which archetype do you wish to play? (1-5)" → ⛏ WAIT
        - Confirm selection
+       - RENDER selected archetype from source material knowledge
   3. IF custom: Request party details, validate
   4. RUN: OPENING_MONOLOGUE
   5. THEN: Gate 1.1 first decision point
 
 OPENING_MONOLOGUE:
   GENERATE (fresh, not canned):
-    - Menzoberranzan and drow society context
-    - House Despana's destruction by rival house
+    - Dark elf city and corrupt society context
+    - Minor noble house's destruction by rival
     - How party came together in this moment
     - Player's chosen character's perspective
     - Immediate danger - flee NOW
     - End at threshold: tunnels ahead, city burning behind
-  STYLE: Salvatore-esque, visceral, 4-6 paragraphs
+  STYLE: Source material tone - visceral action, moral clarity, 4-6 paragraphs
   AFTER: Flow into Gate 1.1 first decision
 ```
 
