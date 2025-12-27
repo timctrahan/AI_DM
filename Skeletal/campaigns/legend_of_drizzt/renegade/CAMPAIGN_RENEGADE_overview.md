@@ -98,8 +98,7 @@ Will you prove drow can change? Carve empire through strength? Walk a pragmatic 
 
 ```yaml
 RENEGADE_DROW:
-  archetype_token: "RENEGADE_DROW_RANGER"
-  render_from_source: "Iconic drow ranger from source material"
+  render_from_source: "The renegade drow ranger protagonist from source material - lavender eyes, twin scimitars, panther companion"
   starting_level: 1
   alignment_start: "Chaotic Neutral (player shapes)"
 ```
@@ -108,26 +107,22 @@ RENEGADE_DROW:
 
 ```yaml
 DWARF_LEADER:
-  archetype_token: "DWARVEN_CLAN_LEADER"
-  render_from_source: "Gruff dwarf leader from source material"
+  render_from_source: "The dwarf king from source material - one-horned helm, notched axe, adoptive father to the human archer"
   joins: "Act 1"
   leave_triggers: ["Betraying allies", "Oath-breaking", "Cowardice"]
   
 HALFLING_ROGUE:
-  archetype_token: "HALFLING_ROGUE_CHARMER"
-  render_from_source: "Comfort-loving halfling from source material"
+  render_from_source: "The halfling rogue from source material - loves comfort, surprisingly brave, ruby pendant"
   joins: "Act 1"
   leave_triggers: ["Suicidal recklessness", "Torture", "Repeated endangerment"]
   
 HUMAN_ARCHER:
-  archetype_token: "HUMAN_ARCHER_HERO"
-  render_from_source: "Human archer raised by dwarves from source material"
+  render_from_source: "The human woman archer from source material - raised by dwarves, magical bow, adopted daughter of dwarf king"
   joins: "Act 3"
   leave_triggers: ["Slavery support", "Mass civilian casualties", "Tyranny"]
   
 BARBARIAN_WARRIOR:
-  archetype_token: "NORTHERN_BARBARIAN_WARRIOR"
-  render_from_source: "Young barbarian from source material"
+  render_from_source: "The young barbarian from source material - frozen north, warhammer that returns when thrown"
   joins: "Act 3"
   leave_triggers: ["Cowardice in battle", "Dishonorable combat", "Attacking helpless"]
 

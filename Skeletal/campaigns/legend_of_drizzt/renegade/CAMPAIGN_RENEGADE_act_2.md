@@ -23,8 +23,10 @@ RESTRICTIONS:
 location_id: MIND_FLAYER_PERIPHERY
 level: 3
 cr: 4
-npc: ILLITHID_THRALL_MASTER
-secondary_npcs: [THRALL_SLAVES, MIND_FLAYER_SCOUTS]
+npc: THRALL_OVERSEER
+npc_detail: "Duergar slavedriver working for mind flayers, CR 2, NOT a mind flayer"
+secondary_npcs: [MIND_CONTROLLED_THRALLS_4]
+threat_clarification: "Real mind flayers are in nearby lair, not in this combat"
 conflict_type: MORAL_TEST
 conflict_id: INTERVENE_OR_SURVIVE
 
@@ -53,7 +55,9 @@ location_id: CORRUPTED_SHRINE
 level: 4
 cr: 5
 npc: DROW_CULTIST_LEADER
-secondary_npcs: [DEMON_CULTISTS, SUMMONING_CIRCLE]
+npc_detail: "Drow priest of Lolth turned demon-worshipper, CR 3"
+secondary_npcs: [DROW_CULTISTS_3, SUMMONING_CIRCLE_INCOMPLETE]
+threat_clarification: "Demon not yet present; ritual incomplete"
 conflict_type: RISK_VS_RESPONSIBILITY
 conflict_id: DEMON_SUMMONING
 
@@ -64,7 +68,7 @@ options:
   4: "Sabotage ritual secretly"
 
 consequences:
-  option_1: { shadow: -10, combat: true, cr: 6, flags: [DEMON_SLAYER] }
+  option_1: { shadow: -10, combat: true, cr: 5, flags: [DEMON_SLAYER] }
   option_2: { shadow: +12, flags: [DEMON_PACT], special_power: "Shadow step 1/day" }
   option_3: { shadow: +3, flags: [COWARD], world_state: "Demon released, Act 3 complications" }
   option_4: { shadow: -5, skill_challenge: "Stealth DC 17, Arcana DC 14", flags: [SABOTEUR] }
@@ -82,7 +86,9 @@ location_id: HIDDEN_SVIRFNEBLIN_SETTLEMENT
 level: 5
 cr: 3
 npc: SVIRFNEBLIN_ELDER
-secondary_npcs: [GNOME_GUARDS, FREED_SLAVES_IF_PRESENT]
+npc_detail: "Deep gnome elder, non-combatant, speaks for settlement"
+secondary_npcs: [GNOME_GUARDS_6, FREED_SLAVES_IF_PRESENT]
+threat_clarification: "Option 1 slaver patrol = 1 duergar slavemaster CR 2 + 4 duergar guards CR 1"
 conflict_type: FACTION_RELATIONS
 conflict_id: TRUST_BUILDING
 

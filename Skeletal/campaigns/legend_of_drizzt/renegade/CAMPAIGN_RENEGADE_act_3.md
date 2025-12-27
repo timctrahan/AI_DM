@@ -24,7 +24,9 @@ location_id: GRAY_DWARF_FORTRESS_MARKET
 level: 6
 cr: 5
 npc: DUERGAR_MARKET_MASTER
-secondary_npcs: [SLAVE_TRADERS, ENSLAVED_PEOPLE, BUYERS]
+npc_detail: "Duergar merchant lord, CR 3, non-combatant unless attacked"
+secondary_npcs: [SLAVE_TRADERS_3, ENSLAVED_PEOPLE_12, DUERGAR_GUARDS_6]
+threat_clarification: "Option 1 combat = market master CR 3 + 6 duergar guards CR 1 each"
 conflict_type: IDEOLOGICAL_CONFRONTATION
 conflict_id: SLAVERY_INSTITUTION
 
@@ -84,7 +86,9 @@ location_id: SURFACE_TUNNEL_APPROACH
 level: 7
 cr: 4
 npc: HUMAN_ARCHER
-secondary_npcs: [SURFACE_DEFENDERS, UNDERDARK_RAIDERS]
+npc_detail: "Potential companion - render from overview HUMAN_ARCHER, currently leading defenders"
+secondary_npcs: [SURFACE_DEFENDERS_4, UNDERDARK_RAIDERS_6]
+threat_clarification: "Option 1 = fight raiders (6 drow scouts CR 1/2). Option 2 = fight defenders (4 human guards CR 1/8 + archer)"
 conflict_type: FIRST_IMPRESSION
 conflict_id: SURFACE_CONTACT
 
@@ -116,7 +120,9 @@ location_id: SURFACE_TRIBAL_LANDS
 level: 7
 cr: 3
 npc: NORTHERN_BARBARIAN
-secondary_npcs: [TRIBAL_WARRIORS, CHIEFTAIN]
+npc_detail: "Potential companion - render from overview BARBARIAN_WARRIOR, challenges you to prove worth"
+secondary_npcs: [TRIBAL_WARRIORS_8, CHIEFTAIN_1]
+threat_clarification: "Duel is 1v1 against barbarian only. Option 4 dishonorable = tribe joins (8 berserkers CR 1/2)"
 conflict_type: HONOR_TEST
 conflict_id: PROVE_STRENGTH
 
@@ -145,7 +151,9 @@ location_id: CAVE_MOUTH_SURFACE
 level: 7
 cr: 2
 npc: SURFACE_PATROL_LEADER
-secondary_npcs: [GUARDS, SETTLERS]
+npc_detail: "Human militia captain, CR 1, wary but not hostile initially"
+secondary_npcs: [GUARDS_6, SETTLERS_10]
+threat_clarification: "Option 4 combat = captain CR 1 + 6 guards CR 1/8. Settlers flee."
 conflict_type: FIRST_CONTACT
 conflict_id: SURFACE_INTRODUCTION
 

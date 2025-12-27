@@ -32,9 +32,11 @@ NEUTRAL: Shadow 30-70
 ```yaml
 location_id: UNDERDARK_BORDER_OUTPOST
 level: 8
-cr: 7
+cr: 0
 npc: REFUGEE_LEADER
-secondary_npcs: [FLEEING_CIVILIANS, SCOUTS]
+npc_detail: "Svirfneblin survivor, non-combatant, brings news of invasion"
+secondary_npcs: [FLEEING_CIVILIANS_20, SCOUTS_3]
+threat_clarification: "No combat in this gate - information gathering only"
 conflict_type: CALL_TO_ACTION
 conflict_id: UNDERDARK_THREAT
 
@@ -90,7 +92,9 @@ location_id: COALITION_WAR_CAMP
 level: 9
 cr: 6
 npc: CAPTURED_COMPANION
-secondary_npcs: [UNDERDARK_RAIDERS, COMMANDERS]
+npc_detail: "One of your current companions - use their render_from_source from overview"
+secondary_npcs: [UNDERDARK_RAIDERS_8, DROW_COMMANDER_1]
+threat_clarification: "Option 1 rescue combat = 1 drow elite warrior CR 5 + 8 drow soldiers CR 1/4"
 conflict_type: LOYALTY_VS_DUTY
 conflict_id: COMPANION_CAPTURED
 
@@ -119,12 +123,14 @@ location_id: UNDERDARK_DEMON_GATE
 level: 10
 cr: 10
 npc: DEMON_LORD_OR_MATRON_MOTHER
-secondary_npcs: [COALITION_FORCES, UNDERDARK_ARMIES]
+npc_detail: "Choose one: Glabrezu demon CR 9 OR Drow Matron Mother CR 8 with priestess abilities"
+secondary_npcs: [COALITION_FORCES_ALLIED, DEMON_MINIONS_6]
+threat_clarification: "Boss + 6 dretches CR 1/4. Coalition forces fight minions, party fights boss."
 conflict_type: BOSS_ENCOUNTER
 conflict_id: STOP_THREAT
 
 phases:
-  phase_1: { hp: "100-51%", behavior: "Tactical, summons", mechanics: ["REF: Demon abilities"] }
+  phase_1: { hp: "100-51%", behavior: "Tactical, summons dretches", mechanics: ["Glabrezu: power word stun, confusion OR Matron: divine spells, spider summons"] }
   phase_2: { hp: "50-1%", behavior: "Desperate, legendary actions", mechanics: ["Area effects", "Environmental hazards"] }
 
 victory_branches:
@@ -170,7 +176,9 @@ location_id: CONQUERED_SETTLEMENT
 level: 8
 cr: 6
 npc: CONQUEST_TARGET_LEADER
-secondary_npcs: [DEFENDERS, MERCENARIES, SUBJUGATED]
+npc_detail: "Human lord or settlement mayor, CR 2 noble with guards"
+secondary_npcs: [DEFENDERS_12, MERCENARIES_6, CIVILIANS_50]
+threat_clarification: "Option 2 assault = noble CR 2 + 12 guards CR 1/8 + 6 veterans CR 3"
 conflict_type: EMPIRE_BUILDING
 conflict_id: FIRST_CONQUEST
 
@@ -228,7 +236,9 @@ location_id: BATTLEFIELD
 level: 9
 cr: 6
 npc: DEPARTED_COMPANION
-secondary_npcs: [RESISTANCE_FIGHTERS, YOUR_ARMY]
+npc_detail: "A companion who left due to your dark choices - use their render_from_source, now as enemy"
+secondary_npcs: [RESISTANCE_FIGHTERS_10, YOUR_ARMY_ALLIED]
+threat_clarification: "Combat is personal duel + 10 resistance fighters CR 1/2 your army handles"
 conflict_type: CONSEQUENCE
 conflict_id: FACE_CHOICES
 
@@ -257,13 +267,15 @@ location_id: MAJOR_KINGDOM
 level: 10
 cr: 9
 npc: COALITION_LEADER
-secondary_npcs: [DEFENDING_ARMIES, YOUR_FORCES]
+npc_detail: "Human paladin king or elven warlord, CR 8 champion with legendary actions"
+secondary_npcs: [KINGDOM_CHAMPIONS_3, YOUR_FORCES_ALLIED]
+threat_clarification: "Boss CR 8 + 3 knights CR 3. Your army handles regular troops."
 conflict_type: BOSS_ENCOUNTER
 conflict_id: ULTIMATE_CONQUEST
 
 phases:
-  phase_1: { hp: "100-51%", behavior: "Defensive, reinforcements", mechanics: ["REF: Kingdom champions", "Fortifications"] }
-  phase_2: { hp: "50-1%", behavior: "Desperate counterattack", mechanics: ["Legendary resistance", "Mass combat"] }
+  phase_1: { hp: "100-51%", behavior: "Defensive, calls reinforcements", mechanics: ["Paladin auras", "Knight support"] }
+  phase_2: { hp: "50-1%", behavior: "Desperate counterattack", mechanics: ["Legendary resistance", "Divine smites"] }
 
 branches:
   victory: GATE_4D.5_THRONE
@@ -363,9 +375,13 @@ branches:
 ```yaml
 location_id: YOUR_BORDERS
 level: 9
-cr: 7
-npc: SURFACE_ENVOY_AND_UNDERDARK_AMBASSADOR
-secondary_npcs: [BOTH_ARMIES, YOUR_DEFENDERS]
+cr: 0
+npc: SURFACE_ENVOY
+npc_detail: "Human diplomat, non-combatant, delivers ultimatum"
+secondary_npc: UNDERDARK_AMBASSADOR
+secondary_npc_detail: "Drow negotiator, non-combatant, delivers counter-offer"
+secondary_npcs: [SURFACE_ARMY_OUTSIDE, UNDERDARK_FORCE_OUTSIDE, YOUR_DEFENDERS_20]
+threat_clarification: "No combat this gate - diplomatic choice. Combat comes in next gate based on choice."
 conflict_type: ULTIMATUM
 conflict_id: CHOOSE_OR_STAND
 
@@ -393,14 +409,18 @@ branches:
 location_id: YOUR_FORTIFIED_TERRITORY
 level: 10
 cr: 8
-npc: DUAL_ASSAULT_COMMANDERS
-secondary_npcs: [SURFACE_ARMIES, UNDERDARK_FORCES, DEFENDERS]
+npc: SURFACE_COMMANDER
+npc_detail: "Human general CR 5, leads surface assault"
+secondary_npc: UNDERDARK_COMMANDER
+secondary_npc_detail: "Drow war leader CR 5, leads Underdark assault"
+secondary_npcs: [YOUR_DEFENDERS_ALLIED]
+threat_clarification: "Two-front battle: surface general CR 5 + underdark leader CR 5. Your forces hold the line, you must defeat both commanders."
 conflict_type: BOSS_ENCOUNTER
 conflict_id: DEFEND_INDEPENDENCE
 
 phases:
-  phase_1: { hp: "100-51%", behavior: "Defend walls, repel assaults", mechanics: ["REF: Siege defense", "Split focus"] }
-  phase_2: { hp: "50-1%", behavior: "Desperate defense, breaches", mechanics: ["Heroic moments", "Companion sacrifices"] }
+  phase_1: { hp: "100-51%", behavior: "Defend walls, repel assaults", mechanics: ["Split focus between two fronts"] }
+  phase_2: { hp: "50-1%", behavior: "Desperate defense, breaches", mechanics: ["Heroic moments", "Companion sacrifices possible"] }
 
 branches:
   victory_or_defeat: GATE_4N.5_AFTERMATH
