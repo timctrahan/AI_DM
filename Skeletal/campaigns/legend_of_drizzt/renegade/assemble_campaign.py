@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Campaign Assembly Script for "Shadows of the Underdark"
+Campaign Assembly Script for "Renegade"
 Combines modular campaign files into a single complete campaign document.
 Uses version.json for dynamic versioning based on file changes.
 
@@ -19,18 +19,19 @@ from datetime import datetime
 from typing import List, Optional
 
 # Campaign configuration
-CAMPAIGN_NAME = "Shadows of the Underdark"
+CAMPAIGN_NAME = "Renegade"
 VERSION_FILE = "version.json"
 
 # File structure (overview first, then acts in order)
 PARTS = [
-    "campaign_overview.md",
-    "act_1_the_fall.md",
-    "act_2_the_wandering.md",
-    "act_3_the_reckoning.md"
+    "CAMPAIGN_RENEGADE_overview.md",
+    "CAMPAIGN_RENEGADE_act_1.md",
+    "CAMPAIGN_RENEGADE_act_2.md",
+    "CAMPAIGN_RENEGADE_act_3.md",
+    "CAMPAIGN_RENEGADE_act_4.md"
 ]
 
-DEFAULT_OUTPUT = "CAMPAIGN_Shadows_of_the_Underdark.md"
+DEFAULT_OUTPUT = "CAMPAIGN_Renegade.md"
 
 
 def load_version():
@@ -40,13 +41,13 @@ def load_version():
         default_version = {
             "current_version": {"major": 2, "minor": 0, "patch": 0},
             "last_change_date": datetime.now().isoformat(),
-            "output_filename": "CAMPAIGN_Shadows_of_the_Underdark_v2.0.0.md",
+            "output_filename": "CAMPAIGN_Renegade_v2.0.0.md",
             "campaign_name": CAMPAIGN_NAME,
             "part_files": PARTS,
             "versioning_rules": {
                 "patch": "0-1 files changed",
                 "minor": "2-3 files changed",
-                "major": "4 files changed"
+                "major": "4-5 files changed"
             }
         }
         save_version(default_version)
@@ -89,7 +90,7 @@ def calculate_new_version(current_version, changed_count):
         # 2-3 files: increment minor, reset patch
         return {"major": major, "minor": minor + 1, "patch": 0}
     else:
-        # 4 files: increment major, reset minor and patch
+        # 4-5 files: increment major, reset minor and patch
         return {"major": major + 1, "minor": 0, "patch": 0}
 
 
@@ -296,11 +297,11 @@ def main():
     elif changed_count <= 3:
         print(f"  Reason: 2-3 files changed (minor increment)")
     else:
-        print(f"  Reason: 4 files changed (major increment)")
+        print(f"  Reason: 4-5 files changed (major increment)")
 
     # Generate output filename (unless overridden)
     if args.output is None:
-        output_file = f"CAMPAIGN_Shadows_of_the_Underdark_{version_string}.md"
+        output_file = f"CAMPAIGN_Renegade_{version_string}.md"
     else:
         output_file = args.output
 

@@ -1,0 +1,23 @@
+{
+  "current_version": {
+    "major": 2,
+    "minor": 0,
+    "patch": 1
+  },
+  "last_change_date": "2025-12-28T22:09:16.892212",
+  "output_filename": "CAMPAIGN_The_Towers_Trial_v2.0.1.md",
+  "campaign_name": "The Tower's Trial",
+  "part_files": [
+    "campaign_overview.md",
+    "act_1_frozen_token.md",
+    "act_2_poisoned_token.md",
+    "act_3_corrupted_token.md",
+    "act_4_storm_token.md",
+    "act_5_flame_token.md"
+  ],
+  "versioning_rules": {
+    "patch": "0-1 files changed",
+    "minor": "2-3 files changed",
+    "major": "4-6 files changed"
+  }
+}

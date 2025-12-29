@@ -1,0 +1,21 @@
+{
+  "current_version": {
+    "major": 2,
+    "minor": 0,
+    "patch": 1
+  },
+  "last_change_date": "2025-12-29T04:46:06.339659",
+  "output_filename": "CAMPAIGN_Shadows_of_the_Underdark_v2.0.1.md",
+  "campaign_name": "Shadows of the Underdark",
+  "part_files": [
+    "campaign_overview.md",
+    "act_1_the_fall.md",
+    "act_2_the_wandering.md",
+    "act_3_the_reckoning.md"
+  ],
+  "versioning_rules": {
+    "patch": "0-1 files changed",
+    "minor": "2-3 files changed",
+    "major": "4 files changed"
+  }
+}
