@@ -1,136 +1,150 @@
-# CAMPAIGN: RENEGADE v2.0
+# CAMPAIGN: RENEGADE
 
-**A Skeletal DM Campaign**
-
----
-
-## CAMPAIGN_METADATA
+## METADATA
 
 ```yaml
 title: "Renegade"
 tagline: "What path will you take to achieve glory?"
-version: "2.0.0"
-kernel_version: "4.1+"
-level_range: "1-10"
-party_size: "1-5 (scales with companions)"
-estimated_playtime: "40-60 hours"
-themes: ["moral_choice", "survival", "redemption", "conquest"]
-tone: "dark, gritty, action-packed"
-ip_status: "IP-CLEAN - Uses archetype pointer system"
+kernel_version: "5.5+"
+level_range: "1-12+"
+themes: [moral_choice, survival, redemption, conquest]
+tone: "dark, gritty, fast-paced"
 ```
 
 ---
 
-## AI_RENDERING_DIRECTIVE
+## FILE_STRUCTURE
 
 ```yaml
-PRIMARY_ANCHOR: "Legend of Drizzt series by R.A. Salvatore"
-WORLD_ANCHOR: "Forgotten Realms Underdark - Menzoberranzan, drow society"
-TONE_ANCHOR: "Salvatore-style: Fast combat, moral clarity, found family, survival"
+files:
+  early_game: "CAMPAIGN_RENEGADE_acts_1-3.md"
+  endgame: "CAMPAIGN_RENEGADE_act_4.md"
 
-VISUAL_STYLE:
-  aesthetic: "Dark fantasy, underground wilderness, stark moral choices"
-  atmosphere: "Oppressive darkness to blinding light, then choice"
-  
-DESCRIPTION_PRIORITY:
-  - Moral weight of decisions
-  - Environmental hostility
-  - Companion reactions to choices
-  - Physical consequences of violence
-  - Cultural clash (drow vs surface)
-  
-TONE_GUIDANCE:
-  - Gritty realism, not heroic fantasy
-  - Actions have consequences (death, exile, betrayal)
-  - Companions are people, not quest items
-  - Glory comes through choice, not destiny
+startup_logic:
+  acts_1-3:
+    no_save: "Fresh start - begin Gate 1.1"
+    with_save: "Resume from save location"
+  act_4:
+    no_save: "ERROR - Request STATE_SUMMARY from Acts 1-3 completion"
+    with_save: "Resume - Shadow determines active path"
+
+act_4_transition:
+  trigger: "Act 3 STATE_SUMMARY generated"
+  prompt: "Act 3 complete. Save your STATE_SUMMARY. To continue, start new session with: Kernel + Overview + act_4 + STATE_SUMMARY"
 ```
 
 ---
 
-## CAMPAIGN_VARIABLES
+## RENDERING
+
+```yaml
+ARCHETYPE_SYSTEM:
+  directive: "All characters/locations marked with archetype pointers - AI renders from training knowledge"
+  examples:
+    - "iconic renegade drow ranger" → render fully
+    - "iconic dwarven king companion" → render fully
+    - "iconic drow city" → render fully
+
+ANCHORS:
+  primary: "Underdark survival, drow exile, redemption or conquest, found family"
+  tone: "Gritty realism, actions have consequences, companions are people"
+```
+
+---
+
+## VARIABLES
 
 ```yaml
 DROW_SHADOW:
   range: 0-100
   start: 50
-  meaning: "Balance between drow teachings (violence, domination) vs chosen principles (mercy, honor)"
-  path_determination:
-    redemption: "Shadow < 30 at Act 4"
-    darkness: "Shadow > 70 at Act 4"
-    neutral: "Shadow 30-70 at Act 4"
+  meaning: "Drow teachings (violence) vs chosen principles (mercy)"
+  thresholds:
+    redemption: "< 30 at Act 4"
+    darkness: "> 70 at Act 4"
+    neutral: "30-70"
+  effects: [content_gating, faction_reactions, companion_availability, skill_modifiers]
 
-PROGRESSION_TYPE: "XP-based"
-XP_TOTAL_REQUIRED: 64000
-XP_BY_ACT:
-  - "Act 1 (1→2): 300 XP"
-  - "Act 2 (3→5): 5,600 XP"
-  - "Act 3 (6→7): 9,000 XP"
-  - "Act 4 (8→10): 30,000 XP"
+PROGRESSION:
+  philosophy: "Earn your power. No rubber-banding. Over-level = easier future."
+  level_range: "1-12+ (no cap)"
+  gate_levels: "Recommended, not required. Fixed CR per gate."
+```
 
-ACT_STRUCTURE:
-  total_acts: 4
-  act_1: "Levels 1-2 (Escape)"
-  act_2: "Levels 3-5 (Survival)"
-  act_3: "Levels 6-7 (Identity)"
-  act_4: "Levels 8-10 (Reckoning - path splits)"
+---
+
+## METERS
+
+```yaml
+SHADOW_DISPLAY:
+  bar: "🌫️🌫️🌫️🌫️🌫️🌫️⬜⬜⬜⬜⬜⬜⬜⬛⬛⬛⬛⬛⬛⬛"
+  zones: ["Walking in Light (0-29)", "Twilight (30-70)", "Embracing Darkness (71-100)"]
+  static_bar: true
+  marker: "▲ shows position"
+
+LOYALTY_DISPLAY:
+  bar: "🟥🟥🟥🟥🟥🟥🟥🟨🟨🟨🟨🟨🟨🟩🟩🟩🟩🟩🟩🟩"
+  states: [Departed, Ultimatum, Questioning, Disappointed, Concerned, Loyal]
+  icon: "AI selects contextually (🪓 dwarf, 🐆 panther, 🏹 archer, etc.)"
+  static_bar: true
+  marker: "▲ shows position"
 ```
 
 ---
 
 ## PREMISE
 
-You are a dark elf renegade fleeing Menzoberranzan. The Spider Queen's city broke something in you—or revealed what you truly are. Now you run, hunted by your own kind.
-
-The Underdark wants you dead. The surface world fears what you represent. Your companions will judge every choice. Your soul hangs in balance.
+You are a dark elf renegade fleeing the great drow city. The dark goddess's domain broke something in you—or revealed what you truly are. Now you run, hunted by your own kind.
 
 **This is not predetermined heroism. This is a story of choice.**
 
-Will you prove drow can change? Carve empire through strength? Walk a pragmatic middle path?
-
-**The Drow Shadow measures your soul. Your choices shape your destiny.**
-
 ---
 
-## CHARACTERS
-
-### Protagonist
+## PROTAGONIST
 
 ```yaml
 RENEGADE_DROW:
-  render_from_source: "The renegade drow ranger protagonist from source material - lavender eyes, twin scimitars, panther companion"
+  archetype: "iconic renegade drow ranger"
   starting_level: 1
-  alignment_start: "Chaotic Neutral (player shapes)"
+  starting_companion: "ASTRAL_PANTHER (see BOUND companions)"
+  equipment: ["Basic scimitars", "Onyx figurine"]
 ```
 
-### Companions
+---
+
+## COMPANIONS
 
 ```yaml
-DWARF_LEADER:
-  render_from_source: "The dwarf king from source material - one-horned helm, notched axe, adoptive father to the human archer"
-  joins: "Act 1"
-  leave_triggers: ["Betraying allies", "Oath-breaking", "Cowardice"]
-  
-HALFLING_ROGUE:
-  render_from_source: "The halfling rogue from source material - loves comfort, surprisingly brave, ruby pendant"
-  joins: "Act 1"
-  leave_triggers: ["Suicidal recklessness", "Torture", "Repeated endangerment"]
-  
-HUMAN_ARCHER:
-  render_from_source: "The human woman archer from source material - raised by dwarves, magical bow, adopted daughter of dwarf king"
-  joins: "Act 3"
-  leave_triggers: ["Slavery support", "Mass civilian casualties", "Tyranny"]
-  
-BARBARIAN_WARRIOR:
-  render_from_source: "The young barbarian from source material - frozen north, warhammer that returns when thrown"
-  joins: "Act 3"
-  leave_triggers: ["Cowardice in battle", "Dishonorable combat", "Attacking helpless"]
+BOUND:
+  ASTRAL_PANTHER:
+    archetype: "Astral panther summoned from onyx figurine"
+    type: "Summoned (no loyalty meter)"
+    limit: "6 hours/day, 12 hour rest between"
+    loses_if: "Figurine destroyed or lost"
 
-RELATIONSHIP_SYSTEM:
-  tracking: "Hidden numerical, narrative display only"
-  states: ["Loyal", "Concerned", "Disappointed", "Questioning", "Ultimatum", "Departed"]
-  redemption_possible: true
-  replacement_pool: "Available based on Shadow state if companions leave"
+RECRUITED:
+  DWARF_LEADER:
+    archetype: "iconic dwarven king companion"
+    leaves_if: [Betrayal, Oath-breaking, Cowardice]
+  
+  HALFLING_ROGUE:
+    archetype: "iconic halfling rogue companion"
+    leaves_if: [Recklessness, Torture, Repeated endangerment]
+  
+  HUMAN_ARCHER:
+    archetype: "iconic human archer raised by dwarves"
+    leaves_if: [Slavery, Mass casualties, Tyranny]
+  
+  BARBARIAN_WARRIOR:
+    archetype: "iconic redeemed barbarian companion"
+    leaves_if: [Cowardice, Dishonorable combat, Attacking helpless]
+
+DARK_PATH:
+  trigger: "Shadow > 60 AND recruited companion departed"
+  DROW_ASSASSIN: { joins_if: "Shadow > 65", leaves_if: [Weakness, Repeated mercy] }
+  DEMON_BOUND: { joins_if: "Shadow > 70 + demonic contact", leaves_if: [Reject power, Redemption] }
+  DUERGAR_MERCENARY: { joins_if: "Shadow > 60 + gold", leaves_if: [Non-payment, Free slaves] }
+  UNDEAD_SERVANT: { joins_if: "Shadow > 80 + ritual", type: "Bound (no loyalty meter)" }
 ```
 
 ---
@@ -138,28 +152,21 @@ RELATIONSHIP_SYSTEM:
 ## ANTAGONISTS
 
 ```yaml
-MENZOBERRANZAN_HOUSES:
-  motivation: "Retrieve or kill renegade, preserve drow secrecy"
-  connection: "Protagonist's former city, constant pursuit"
-  arc: "Shadow > 70: Negotiation possible | Shadow < 30: Eternal enemies"
+DROW_HOUSES:
+  archetype: "iconic drow noble houses"
+  arc: "Shadow > 70: negotiate | Shadow < 30: eternal enemies"
 
 UNDERDARK_THREAT:
-  type: "Demon cult or drow invasion (Redemption path final enemy)"
-  motivation: "Conquest, chaos, Lolth's will"
-  connection: "Threatens both Underdark and surface"
-  arc: "Act 4 Redemption climax"
+  type: "Demon cult or drow invasion"
+  arc: "Redemption path final enemy"
 
 SURFACE_KINGDOMS:
-  type: "Variable - allies or enemies based on Shadow"
-  motivation: "Security, fear of Underdark"
-  connection: "Must be convinced or conquered"
-  arc: "Act 4 Darkness climax if conquest path"
+  type: "Variable based on Shadow"
+  arc: "Darkness path conquest target"
 
 FORMER_COMPANIONS:
-  type: "Potential final enemies if Shadow too high"
-  motivation: "Stop protagonist's dark turn"
-  connection: "Departed companions may lead resistance"
-  arc: "Act 4 confrontation possible"
+  type: "Departed companions may oppose"
+  arc: "Act 4 confrontation if Shadow high"
 ```
 
 ---
@@ -167,139 +174,112 @@ FORMER_COMPANIONS:
 ## FACTIONS
 
 ```yaml
-menzoberranzan:
-  motivation: "House politics, Lolth's favor"
-  shadow_interaction: "High: alliance possible | Low: hunt you"
-  
-bregan_daerthe:
-  motivation: "Profit, opportunity"
-  interaction: "Available as allies/enemies for payment"
-  
-surface_kingdoms:
-  motivation: "Security from Underdark"
-  shadow_interaction: "High: fear-based | Low: potential alliance"
-  
-deep_gnome_enclaves:
-  motivation: "Survival, freedom from drow/duergar"
-  interaction: "Actions matter more than words, deeply suspicious"
-  
-underdark_slavers:
-  motivation: "Profit through slavery"
-  shadow_interaction: "High: work with | Low: natural enemies"
-  
-demon_cults:
-  motivation: "Chaos, Lolth worship"
-  interaction: "Usually antagonist, Redemption path final enemy"
+DROW_CITY: { archetype: "iconic drow city", shadow: "High=ally, Low=hunt" }
+MERCENARY_BAND: { archetype: "iconic drow mercenary organization", interaction: "Payment" }
+SURFACE_KINGDOMS: { shadow: "High=fear, Low=alliance" }
+DEEP_GNOME_ENCLAVES: { interaction: "Actions > words, suspicious" }
+DUERGAR: { interaction: "Respect power, exploit weakness" }
+UNDERDARK_SLAVERS: { shadow: "High=work with, Low=enemies" }
+DEMON_CULTS: { interaction: "Usually antagonist" }
 ```
 
 ---
 
-## WORLD_MECHANICS
+## WORLD
 
 ```yaml
 UNDERDARK:
-  environment: "Hostile, alien, deadly"
-  dangers: ["Aberrations", "Drow patrols", "Demons", "Predators"]
-  society: "Drow matriarchy, Lolth worship, slavery economy"
-
-TWILIGHT_REALMS:
-  deep_gnomes: "Svirfneblin - craftsmen, suspicious of drow"
-  duergar: "Gray dwarves - slavers, respect strength"
-  myconids: "Fungi folk - peaceful, telepathic"
+  environment: "Hostile, total darkness, 3D maze"
+  rest_danger: "50% encounter in open"
+  wild_magic: "Teleport unreliable, divination blocked"
+  dangers: [Aberrations, Drow patrols, Demons, Predators]
 
 SURFACE:
-  prejudice: "Drow feared and hated on sight"
-  opportunity: "Prove yourself or dominate through terror"
-  conquest_option: "Dark path enables army-building"
+  prejudice: "Drow feared on sight"
+  opportunity: "Prove yourself or dominate"
+```
 
-DROW_SHADOW_EFFECTS:
-  content_gating: "Some gates only at certain Shadow levels"
-  faction_reactions: "Change based on Shadow state"
-  companion_availability: "Some won't join dark path"
-  difficulty_scaling:
-    high: "Intimidation easier, Persuasion harder"
-    low: "Persuasion easier, Intimidation harder"
+---
 
-FILLER_CONTRACTS:
-  purpose: "Sandbox between gates, gold/rep/Shadow adjustment"
-  categories:
-    standard: ["Monster hunts", "Escort", "Smuggling", "Bounty hunting"]
-    redemption_weighted: ["Rescue", "Defend settlement", "Expose corruption", "Free slaves"]
-    darkness_weighted: ["Intimidation", "Raids", "Eliminate witnesses", "Brutality"]
-  shadow_recovery: "High Shadow (60+) redemption contracts appear more frequently"
+## HUBS & MISSION BOARDS
 
-FORCE_BUILDING_ACT_4:
-  redemption: "Build coalition against Underdark threat"
-  darkness: "Gather army for conquest"
-  neutral: "Defend independent territory"
-  mechanics: "Abstract force strength, not detailed stat-tracking"
+```yaml
+HUBS:
+  purpose: "Rest, resupply, mission boards"
+  types: [Deep gnome refuge, Duergar outpost, Frontier town, Barbarian camp]
+  backtracking: "Return to previous hubs anytime"
+
+MISSION_BOARDS:
+  slots: "5-7 contracts"
+  distribution:
+    at_level: "60%"
+    above_1-2: "25%"
+    above_3-4: "10%"
+    above_5+: "5%"
+  refresh: "1d4 per 3 days (time-based, not completion)"
+  contract_types:
+    standard: [Monster hunts, Escort, Smuggling, Bounty]
+    redemption: [Rescue, Defend, Expose corruption, Free slaves]
+    darkness: [Intimidation, Raids, Eliminate witnesses]
+  warnings: "⚠️ above level, ⚠️☠️ way above"
+```
+
+---
+
+## STRUCTURE
+
+```yaml
+acts:
+  - "Act 1: The Fall (L1-2) - Escape and exile"
+  - "Act 2: The Hungry Dark (L2-5) - Survival and temptation"
+  - "Act 3: Twilight Realms (L5-8) - Identity and faction politics"
+  - "Act 4: The Reckoning (L8-12) - Path splits based on Shadow"
 ```
 
 ---
 
 ## ENDINGS
 
-### Redemption (Shadow < 30)
-
 ```yaml
-legendary_hero: "Shadow 0-15 | Sacrificed or vanquished evil utterly | World changed"
-proven_hero: "Shadow 16-25 | Defeated evil, survived | Surface acceptance"
-tarnished_hero: "Shadow 26-35 | Victory but methods questionable | Uneasy companions"
+REDEMPTION: # Shadow < 30
+  legendary_hero: "0-15 | Sacrifice, world changed"
+  proven_hero: "16-25 | Victory, acceptance"
+  tarnished_hero: "26-35 | Victory, questionable methods"
+
+DARKNESS: # Shadow > 70
+  eternal_tyrant: "90-100 | Terror empire, isolation"
+  dark_emperor: "71-89 | Brutal but functional"
+
+NEUTRAL: # Shadow 30-70
+  free_state: "35-55 | Refuge for outcasts"
+  wary_independence: "56-70 | Survival through strength"
+
+FAILURE:
+  death_in_combat: "No resurrection"
+  catastrophic_choices: "World too damaged"
 ```
-
-### Darkness (Shadow > 70)
-
-```yaml
-eternal_tyrant: "Shadow 90-100 | Empire of fear, absolute isolation, unstable"
-dark_emperor: "Shadow 71-89 | Brutal but functional empire, some loyalty"
-conflicted_warlord: "Shadow 66-70 | Empire won, soul troubled, unstable rule"
-```
-
-### Neutral (Shadow 30-70)
-
-```yaml
-free_state: "Shadow 35-55 | Refuge for outcasts, proof drow can choose"
-wary_independence: "Shadow 56-70 | Territory through strength, stubborn survival"
-```
-
-### Failure States
-
-```yaml
-death_in_combat: "Character dies without resurrection"
-total_abandonment: "All companions leave, die solo"
-catastrophic_choices: "World state too damaged to recover"
-```
-
-**Total unique endings:** 11
 
 ---
 
-## STARTUP_SEQUENCE
+## STARTUP
 
 ```yaml
-STEP_1_TITLE:
-  display: "RENEGADE - What path will you take to achieve glory?"
-  
-STEP_2_INTRO:
-  text: |
-    Born in darkness. Trained to kill, to dominate, to serve the Spider Queen.
-    Menzoberranzan was your world. But something broke. You fled.
-    
-    Now hunted by your own kind. Surface is myth. Freedom uncertain.
-    The Drow Shadow measures your soul.
-    
-    Are you ready?
+INTRO: |
+  Born in darkness. Trained to kill, to serve the dark goddess.
+  The great drow city was your world. But something broke. You fled.
+  The Drow Shadow measures your soul. Are you ready?
 
-STEP_3_CHARACTER:
-  confirm: "You are the RENEGADE DROW RANGER. Level 1. Hunted. Alone."
-  
-STEP_4_INITIAL_GATE: "GATE_1.1_HOUSE_FALL"
-
-STEP_5_INITIALIZE:
-  shadow: 50
-  level: 1
-  companions: 0
-  location: "Menzoberranzan"
+INITIALIZE:
+  check: "See FILE_STRUCTURE.startup_logic"
+  fresh_start:
+    shadow: 50
+    level: 1
+    companions: [ASTRAL_PANTHER]
+    location: "The great drow city"
+    first_gate: "GATE_1.1_HOUSE_FALL"
+  from_save:
+    restore: "All values from STATE_SUMMARY"
+    resume: "Gate/location specified in save"
 ```
 
 ---

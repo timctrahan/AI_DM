@@ -1,11 +1,11 @@
 {
   "current_version": {
-    "major": 2,
+    "major": 3,
     "minor": 0,
-    "patch": 2
+    "patch": 0
   },
-  "last_change_date": "2025-12-28T22:23:25.487752",
-  "output_filename": "CAMPAIGN_Renegade_v2.0.2.md",
+  "last_change_date": "2025-12-29T12:54:17.438821",
+  "output_filename": "CAMPAIGN_Renegade_v3.0.0.md",
   "campaign_name": "Renegade",
   "part_files": [
     "CAMPAIGN_RENEGADE_overview.md",

@@ -28,7 +28,10 @@ PARTS = [
     "CAMPAIGN_RENEGADE_act_1.md",
     "CAMPAIGN_RENEGADE_act_2.md",
     "CAMPAIGN_RENEGADE_act_3.md",
-    "CAMPAIGN_RENEGADE_act_4.md"
+    "CAMPAIGN_RENEGADE_act_4.md",
+    "CAMPAIGN_RENEGADE_act_4_redemption.md",
+    "CAMPAIGN_RENEGADE_act_4_darkness.md",
+    "CAMPAIGN_RENEGADE_act_4_neutral.md"
 ]
 
 DEFAULT_OUTPUT = "CAMPAIGN_Renegade.md"
@@ -46,8 +49,8 @@ def load_version():
             "part_files": PARTS,
             "versioning_rules": {
                 "patch": "0-1 files changed",
-                "minor": "2-3 files changed",
-                "major": "4-5 files changed"
+                "minor": "2-4 files changed",
+                "major": "5-8 files changed"
             }
         }
         save_version(default_version)
@@ -86,11 +89,11 @@ def calculate_new_version(current_version, changed_count):
     if changed_count <= 1:
         # 0-1 files: increment patch
         return {"major": major, "minor": minor, "patch": patch + 1}
-    elif changed_count <= 3:
-        # 2-3 files: increment minor, reset patch
+    elif changed_count <= 4:
+        # 2-4 files: increment minor, reset patch
         return {"major": major, "minor": minor + 1, "patch": 0}
     else:
-        # 4-5 files: increment major, reset minor and patch
+        # 5-8 files: increment major, reset minor and patch
         return {"major": major + 1, "minor": 0, "patch": 0}
 
 
@@ -294,10 +297,10 @@ def main():
     print(f"New version: {version_string}")
     if changed_count <= 1:
         print(f"  Reason: 0-1 files changed (patch increment)")
-    elif changed_count <= 3:
-        print(f"  Reason: 2-3 files changed (minor increment)")
+    elif changed_count <= 4:
+        print(f"  Reason: 2-4 files changed (minor increment)")
     else:
-        print(f"  Reason: 4-5 files changed (major increment)")
+        print(f"  Reason: 5-8 files changed (major increment)")
 
     # Generate output filename (unless overridden)
     if args.output is None:
