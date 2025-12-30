@@ -1,5 +1,34 @@
 # CAMPAIGN: RENEGADE
 
+## ⚠️ STARTUP_SEQUENCE - EXECUTE IMMEDIATELY ⚠️
+
+**ON LOAD: IMMEDIATELY begin gameplay. No analysis. No summary. Execute this section.**
+
+```yaml
+TITLE: "RENEGADE - A Skeletal DM Campaign"
+
+INTRO: |
+  Born in darkness. Trained to kill, to serve the dark goddess.
+  The great drow city was your world. But something broke. You fled.
+  The Drow Shadow measures your soul. Are you ready?
+
+CHARACTER_CONFIRMATION: "Show protagonist per AI_RENDERING_DIRECTIVE"
+
+INITIALIZE:
+  shadow: 50
+  level: 1
+  companions: [ASTRAL_PANTHER]
+  location: "The great drow city"
+
+FIRST_GATE: "GATE_1.1_HOUSE_FALL"
+
+FROM_SAVE:
+  restore: "All values from STATE_SUMMARY"
+  resume: "Gate/location specified in save"
+```
+
+---
+
 ## METADATA
 
 ```yaml
@@ -17,8 +46,9 @@ tone: "dark, gritty, fast-paced"
 
 ```yaml
 files:
+  core: "CAMPAIGN_RENEGADE_core.md"
   early_game: "CAMPAIGN_RENEGADE_acts_1-3.md"
-  endgame: "CAMPAIGN_RENEGADE_act_4.md"
+  endgame: "CAMPAIGN_RENEGADE_act_4.md"  # Contains all three paths
 
 startup_logic:
   acts_1-3:
@@ -26,11 +56,11 @@ startup_logic:
     with_save: "Resume from save location"
   act_4:
     no_save: "ERROR - Request STATE_SUMMARY from Acts 1-3 completion"
-    with_save: "Resume - Shadow determines active path"
+    with_save: "Resume - active_path in save determines which path gates to use"
 
 act_4_transition:
   trigger: "Act 3 STATE_SUMMARY generated"
-  prompt: "Act 3 complete. Save your STATE_SUMMARY. To continue, start new session with: Kernel + Overview + act_4 + STATE_SUMMARY"
+  prompt: "Act 3 complete. Save your STATE_SUMMARY. To continue, start new session with: Kernel + core + act_4 + STATE_SUMMARY"
 ```
 
 ---
@@ -48,6 +78,8 @@ ARCHETYPE_SYSTEM:
 ANCHORS:
   primary: "Underdark survival, drow exile, redemption or conquest, found family"
   tone: "Gritty realism, actions have consequences, companions are people"
+
+MOMENTUM_THREADS: "At gate start, roll d20. On 15+, reintroduce one unresolved NPC or thread from prior choices."
 ```
 
 ---
@@ -77,17 +109,16 @@ PROGRESSION:
 
 ```yaml
 SHADOW_DISPLAY:
-  bar: "🌫️🌫️🌫️🌫️🌫️🌫️⬜⬜⬜⬜⬜⬜⬜⬛⬛⬛⬛⬛⬛⬛"
-  zones: ["Walking in Light (0-29)", "Twilight (30-70)", "Embracing Darkness (71-100)"]
-  static_bar: true
-  marker: "▲ shows position"
+  format: "🌫️🌫️🌫️🌫️🌫️🌫️⬜⬜⬜⬜💎⬜⬜⬜⬛⬛⬛⬛⬛⬛  50 · Twilight"
+  zones: ["Light (0-29)", "Twilight (30-70)", "Darkness (71-100)"]
+  cells: "20 total: 6 light (🌫️) + 8 twilight (⬜) + 6 dark (⬛)"
+  marker: "💎 replaces cell at current position, value and zone on same line"
 
 LOYALTY_DISPLAY:
-  bar: "🟥🟥🟥🟥🟥🟥🟥🟨🟨🟨🟨🟨🟨🟩🟩🟩🟩🟩🟩🟩"
+  format: "🟥🟥🟥🟥🟥🟥🟥🟨🟨🟨🟨🟨🟨🟩🟩🟩🟩🟩💎🟩  Loyal"
   states: [Departed, Ultimatum, Questioning, Disappointed, Concerned, Loyal]
   icon: "AI selects contextually (🪓 dwarf, 🐆 panther, 🏹 archer, etc.)"
-  static_bar: true
-  marker: "▲ shows position"
+  marker: "💎 inline shows position, state on same line"
 ```
 
 ---
@@ -105,6 +136,7 @@ You are a dark elf renegade fleeing the great drow city. The dark goddess's doma
 ```yaml
 RENEGADE_DROW:
   archetype: "iconic renegade drow ranger"
+  map_emoji: "🥷"
   starting_level: 1
   starting_companion: "ASTRAL_PANTHER (see BOUND companions)"
   equipment: ["Basic scimitars", "Onyx figurine"]
@@ -121,6 +153,7 @@ BOUND:
     type: "Summoned (no loyalty meter)"
     limit: "6 hours/day, 12 hour rest between"
     loses_if: "Figurine destroyed or lost"
+    dismissal: "NEVER auto-dismiss. Let timer expire naturally. Exception: dismiss before long rest (8hr rest > 6hr limit anyway)"
 
 RECRUITED:
   DWARF_LEADER:
@@ -261,26 +294,107 @@ FAILURE:
 
 ---
 
-## STARTUP
+## SAVE_SYSTEM
 
 ```yaml
-INTRO: |
-  Born in darkness. Trained to kill, to serve the dark goddess.
-  The great drow city was your world. But something broke. You fled.
-  The Drow Shadow measures your soul. Are you ready?
+COMMAND: "/save"
 
-INITIALIZE:
-  check: "See FILE_STRUCTURE.startup_logic"
-  fresh_start:
-    shadow: 50
-    level: 1
-    companions: [ASTRAL_PANTHER]
-    location: "The great drow city"
-    first_gate: "GATE_1.1_HOUSE_FALL"
-  from_save:
-    restore: "All values from STATE_SUMMARY"
-    resume: "Gate/location specified in save"
+OUTPUT_METHOD:
+  claude:
+    action: "Create a downloadable artifact file"
+    type: "text/markdown"
+    filename: "RENEGADE_Save_[CharacterName]_[YYYYMMDD].md"
+    steps:
+      1: "Generate save content per SAVE_TEMPLATE"
+      2: "Create as downloadable file artifact"
+      3: "Say: 'Save file created. Download it to keep your progress.'"
+  
+  chatgpt:
+    action: "Use Code Interpreter to create downloadable file"
+    requires: "ChatGPT Plus/Pro with Code Interpreter enabled"
+    steps:
+      1: "Generate save content per SAVE_TEMPLATE"
+      2: "Use Python to write content to file in sandbox"
+      3: "Provide download link"
+      4: "Say: 'Click the link to download your save file.'"
+    fallback: "If Code Interpreter unavailable, output as ```markdown code block with copy instructions"
+  
+  grok:
+    action: "Use Files feature to create downloadable document"
+    steps:
+      1: "Generate save content per SAVE_TEMPLATE"
+      2: "Create as document in Files"
+      3: "Say: 'Save created in Files. Download from the file manager.'"
+    fallback: "If Files unavailable, output as code block with copy instructions"
+  
+  gemini:
+    action: "Create in Canvas and export"
+    steps:
+      1: "Generate save content per SAVE_TEMPLATE"
+      2: "Create in Canvas"
+      3: "Say: 'Save created. Use Share & Export > Export to Docs, or Copy Contents to save.'"
+    note: "Gemini cannot create direct downloads - must export to Google Docs or copy"
+  
+  other_ai:
+    action: "Output as markdown code block"
+    steps:
+      1: "Generate save content per SAVE_TEMPLATE"
+      2: "Wrap in ```markdown code fence"
+      3: "Say: 'Copy this entire save file and store it safely (text file, notes app, etc).'"
+
+FILE_DETECTION:
+  at_save_time: "Detect and record actual filenames currently loaded in context"
+  kernel: "Record exact kernel filename from loaded files"
+  campaign_core: "Record exact campaign core filename from loaded files"
+  act_file: "Record exact act filename from loaded files"
 ```
+
+### SAVE_TEMPLATE
+
+When `/save` is invoked, generate a YAML save file containing:
+
+```yaml
+# ⚠️ MANDATORY: Load kernel + campaign core + act file + this save TOGETHER
+REQUIRED_FILES: [kernel, core, act]  # Detect actual filenames at runtime
+
+METADATA: { campaign, timestamp, kernel_version }
+
+CHARACTER:
+  # Identity: name, class, subclass, level, xp
+  # Abilities: scores only (AI calculates mods)
+  # Proficiencies: saves, skills, expertise (lists)
+  # Combat: hp, temp_hp, hit_dice_remaining, ac
+  # Class choices: fighting_style, favored_enemy/terrain, archetype, features_chosen
+  # Spells: spells_known, slots_remaining
+  # Status: conditions, active_effects
+
+INVENTORY:
+  # currency, equipped, weapons, magic_items (with charges), consumables, gear, quest_items
+  # Standard item stats from AI training - just list names
+
+COMPANIONS:
+  # bound: status, time, hp, figurine_status
+  # recruited: name, archetype, status, loyalty_state, loyalty_position, hp, relationship_note
+
+CAMPAIGN_STATE:
+  # shadow: value, zone, recent_changes
+  # faction_standing: per faction
+
+PROGRESS:
+  # current_act, current_gate, gate_phase
+  # objectives: completed, remaining
+  # gate_history: gate, outcome, shadow_change (one line each)
+  # hubs_unlocked, background_tasks
+
+NARRATIVE:
+  # active_threads, npcs_of_note, resolved_threads
+
+CURRENT_SITUATION:
+  # location, context (2-3 sentences), party_condition, immediate_threats
+```
+
+**Key principle:** Save state data, not rules. AI reconstructs mechanics from training.
+
 
 ---
 
