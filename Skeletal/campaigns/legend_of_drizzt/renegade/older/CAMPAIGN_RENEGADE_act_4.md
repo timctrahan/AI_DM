@@ -1,5 +1,14 @@
 # ACT 4: THE RECKONING
 
+```yaml
+VALIDATION:
+  type: "act_file"
+  acts: [4]
+  paths: [REDEMPTION, DARKNESS, NEUTRAL]
+  gates: 15
+  echo: "✅ ACT: 4 (The Reckoning) | Paths: 3 | Gates: 15 | Status: READY"
+```
+
 ## PATH_DETERMINATION
 
 ```yaml
@@ -57,6 +66,28 @@ FREE_TERRITORY: # Neutral
   services: [Rest, Trading post, Militia training, Outcast refuge]
   mission_board: [standard]
   special: "Contracts defend territory"
+```
+
+## PHASE_RESTRICTIONS
+
+```yaml
+ACT_4_REDEMPTION:
+  phase: HERO_RISING
+  pacing: medium
+  journey_feel: "Travel and encounters. Rests possible. Coalition building takes time."
+  restrictions: [Political complexity, Trust fragile, War looms]
+
+ACT_4_DARKNESS:
+  phase: CONQUEST
+  pacing: high
+  journey_feel: "Brief breathers. Rivals plot. Power demands constant vigilance."
+  restrictions: [Betrayal risk, Forces need control, Enemies multiply]
+
+ACT_4_NEUTRAL:
+  phase: INDEPENDENCE
+  pacing: medium
+  journey_feel: "Building and defending. Rests possible but threats persist."
+  restrictions: [Two-front pressure, Resources stretched, Trust earned slowly]
 ```
 
 ---
@@ -120,6 +151,7 @@ objectives:
 
 ```yaml
 trigger: "Early engagement with enemy forces"
+pacing: high  # Override: active warfare
 
 what_happens: |
   First battle as coalition commander. Your tactical choices 
@@ -137,6 +169,8 @@ objectives:
 
 ```yaml
 trigger: "Climactic confrontation"
+pacing: extreme  # Override: final battle
+tactical_start: true
 
 what_happens: |
   The threat's heart. Demon lord, drow matron, or awakened evil.
@@ -154,6 +188,7 @@ objectives:
 
 ```yaml
 trigger: "Victory achieved, dust settling"
+pacing: low  # Override: denouement
 
 what_happens: |
   The world changed. Surface kingdoms must decide what to do 
@@ -215,6 +250,7 @@ objectives:
 
 ```yaml
 trigger: "Lieutenants grow ambitious"
+pacing: extreme  # Override: assassination attempts, constant threat
 
 what_happens: |
   Power attracts challengers. Your most capable subordinates 
@@ -249,6 +285,8 @@ shadow_range: "Kill +8-10 | Attempt mercy -8-10"
 
 ```yaml
 trigger: "Major kingdom falls within reach"
+pacing: extreme  # Override: war
+tactical_start: true
 
 what_happens: |
   Coalition of surface kingdoms makes final stand. Their champions, 
@@ -267,6 +305,7 @@ shadow_range: "Total annihilation +6-10"
 
 ```yaml
 trigger: "Victory achieved, kingdom yours"
+pacing: low  # Override: you've won, now rule
 
 what_happens: |
   Crown and carnage. The surface kneels. Your remaining companions 
@@ -366,6 +405,8 @@ path_shift_possible:
 
 ```yaml
 trigger: "Both realms attack"
+pacing: extreme  # Override: fighting on two fronts
+tactical_start: true
 
 what_happens: |
   Surface army from one direction, Underdark force from another.
@@ -383,6 +424,7 @@ objectives:
 
 ```yaml
 trigger: "Survival achieved, independence proven"
+pacing: low  # Override: resolution
 
 what_happens: |
   Bloody, exhausted, but free. Both realms know now: you cannot 
