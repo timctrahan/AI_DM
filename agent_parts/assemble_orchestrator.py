@@ -8,6 +8,7 @@ Uses version.json for dynamic versioning based on file changes
 import os
 import sys
 import json
+import re
 from datetime import datetime
 import zipfile
 
@@ -108,6 +109,64 @@ def update_part1_version(content, version_string):
 
     return content
 
+
+def count_protocols(content):
+    """Count protocols in the assembled content"""
+    # Match patterns like "### PROTOCOL:" or "## PROTOCOL:" or variations
+    protocol_patterns = [
+        r'^#{2,3}\s*PROTOCOL:',      # Standard protocol headers
+        r'^#{2,3}\s*\*\*PROTOCOL:',  # Bold protocol headers
+    ]
+
+    count = 0
+    for pattern in protocol_patterns:
+        matches = re.findall(pattern, content, re.MULTILINE | re.IGNORECASE)
+        count += len(matches)
+
+    return count
+
+
+def get_part_stats(parts):
+    """Get size and protocol count for each part file"""
+    stats = []
+    for part in parts:
+        if os.path.exists(part):
+            with open(part, "r", encoding="utf-8") as f:
+                content = f.read()
+            size = len(content.encode('utf-8'))
+            protocols = count_protocols(content)
+            stats.append({
+                "file": part,
+                "size": size,
+                "protocols": protocols
+            })
+        else:
+            stats.append({
+                "file": part,
+                "size": 0,
+                "protocols": 0
+            })
+    return stats
+
+
+def get_previous_output_stats(version_data):
+    """Get stats from the previous version's output file if it exists"""
+    prev_version = version_data.get("current_version", {})
+    prev_version_str = get_version_string(prev_version)
+    prev_output = f"CORE_DND5E_AGENT_ORCHESTRATOR_{prev_version_str}.md"
+    prev_path = os.path.join("..", prev_output)
+
+    if os.path.exists(prev_path):
+        with open(prev_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return {
+            "path": prev_path,
+            "size": len(content.encode('utf-8')),
+            "protocols": count_protocols(content)
+        }
+    return None
+
+
 def assemble_orchestrator(output_file=None):
     """Assemble orchestrator from parts with dynamic versioning"""
 
@@ -128,6 +187,25 @@ def assemble_orchestrator(output_file=None):
         if not os.path.exists(part):
             print(f"ERROR: Missing part: {part}")
             sys.exit(1)
+
+    # Get previous version stats for comparison
+    prev_stats = get_previous_output_stats(version_data)
+
+    # Get part-by-part statistics
+    part_stats = get_part_stats(parts)
+    total_source_size = sum(p["size"] for p in part_stats)
+    total_source_protocols = sum(p["protocols"] for p in part_stats)
+
+    print("\n  Part Breakdown:")
+    print("  " + "-" * 55)
+    print(f"  {'Part':<35} {'Size':>8} {'Protocols':>10}")
+    print("  " + "-" * 55)
+    for i, stat in enumerate(part_stats, 1):
+        part_name = stat["file"].replace("DND_ORCH_", "").replace(".md", "")
+        size_kb = stat["size"] / 1024
+        print(f"  {i}. {part_name:<32} {size_kb:>6.1f}KB {stat['protocols']:>10}")
+    print("  " + "-" * 55)
+    print(f"  {'TOTAL (source)':<35} {total_source_size/1024:>6.1f}KB {total_source_protocols:>10}")
 
     # Count changed files
     changed_count = count_changed_files(parts, last_change_date)
@@ -173,21 +251,59 @@ def assemble_orchestrator(output_file=None):
                 if i < len(parts):
                     output.write("\n\n---\n\n")
 
-    # Verify
+    # Verify and count protocols in output
+    with open(output_path, "r", encoding="utf-8") as f:
+        output_content = f.read()
+
     size = os.path.getsize(output_path)
     size_kb = size / 1024
+    output_protocols = count_protocols(output_content)
 
     print(f"\nAssembly complete!")
     print(f"  Output: {output_path}")
     print(f"  Size: {size} bytes ({size_kb:.1f} KB)")
+    print(f"  Protocols: {output_protocols}")
 
     # Verify size is reasonable (40-50KB expected)
     if size < 40000:
-        print("  WARNING: File smaller than expected (expected ~43KB)")
+        print("  ⚠️  WARNING: File smaller than expected (expected ~43KB)")
     elif size > 50000:
-        print("  WARNING: File larger than expected (expected ~43KB)")
+        print("  ⚠️  WARNING: File larger than expected (expected ~43KB)")
     else:
-        print("  Size looks good")
+        print("  ✓ Size looks good")
+
+    # Verify protocol count
+    if output_protocols < 35:
+        print(f"  ⚠️  WARNING: Low protocol count (expected 35-45, got {output_protocols})")
+    elif output_protocols > 50:
+        print(f"  ⚠️  WARNING: High protocol count (expected 35-45, got {output_protocols})")
+    else:
+        print(f"  ✓ Protocol count looks good")
+
+    # Version comparison
+    if prev_stats:
+        size_diff = size - prev_stats["size"]
+        protocol_diff = output_protocols - prev_stats["protocols"]
+        size_pct = (size_diff / prev_stats["size"]) * 100 if prev_stats["size"] > 0 else 0
+
+        print(f"\n  Version Comparison ({get_version_string(current_version)} → {version_string}):")
+        print("  " + "-" * 45)
+
+        # Size change
+        if size_diff > 0:
+            print(f"  Size:      +{size_diff:,} bytes (+{size_pct:.1f}%)")
+        elif size_diff < 0:
+            print(f"  Size:      {size_diff:,} bytes ({size_pct:.1f}%)")
+        else:
+            print(f"  Size:      No change")
+
+        # Protocol change
+        if protocol_diff > 0:
+            print(f"  Protocols: +{protocol_diff} protocols")
+        elif protocol_diff < 0:
+            print(f"  Protocols: {protocol_diff} protocols")
+        else:
+            print(f"  Protocols: No change")
 
     # Backup part files to versioned archive
     try:
